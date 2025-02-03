@@ -3,9 +3,9 @@ Contributors: creativform, ivijanstefan
 Donate link: 
 Tags: refresh, reload, auto-refresh, cache-clear, performance
 Requires at least: 5.4
-Tested up to: 6.6
+Tested up to: 6.7
 Requires PHP: 7.0
-Stable tag: 1.0.10
+Stable tag: 2.0.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Donate link: https://www.buymeacoffee.com/ivijanstefan
@@ -46,6 +46,10 @@ Loving the Easy Auto Reload plugin? Don't keep it a secret! Share your love as y
 
 == Changelog ==
 
+= 2.0.0 =
+* Added possibility to set refresh interval for individual pages
+* Improved PHP code
+
 = 1.0.10 =
 * Support for the WordPress version 6.7
 
@@ -85,3 +89,8 @@ Loving the Easy Auto Reload plugin? Don't keep it a secret! Share your love as y
 
 =1.0.0=
 * First stable version
+
+== Screenshots ==
+
+1. Admin Settings
+2. Page and post settings
