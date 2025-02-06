@@ -4,7 +4,7 @@
  * Plugin Name:       Easy Auto Reload
  * Plugin URI:        https://infinitumform.com
  * Description:       Auto refresh WordPress pages if there is no site activity after after any number of minutes.
- * Version:           2.0.0
+ * Version:           2.0.1
  * Author:            Ivijan-Stefan Stipic
  * Author URI:        https://www.linkedin.com/in/ivijanstefanstipic/
  * License:           GPL-2.0+
@@ -31,6 +31,7 @@
 // If someone try to called this file directly via URL, abort.
 if ( ! defined( 'WPINC' ) ) { die( "Don't mess with us." ); }
 if ( ! defined( 'ABSPATH' ) ) { exit; }
+if ( ! defined( 'WP_AUTO_REFRESH_VERSION' ) ) { define( 'WP_AUTO_REFRESH_VERSION', '2.0.1' ); }
 
 final class WP_Auto_Refresh{
 	/*
@@ -75,11 +76,26 @@ final class WP_Auto_Refresh{
 				update_option('wp-autorefresh', array(
 					'post_type' => ['post', 'page'],
 					'nonce_life' => DAY_IN_SECONDS,
-					'timeout' => 5
+					'timeout' => 5,
+					'global_refresh' => 1
 				));
 			}
 		});
+		// Update plugin
+		add_action('admin_init', function () {
+			$current_version = get_option('wp-autorefresh-version');
+			if ($current_version === false) {
+			
+				if( $option = get_option('wp-autorefresh', array()) ) {
+					$option['global_refresh'] = 1;
+					update_option('wp-autorefresh', $option);
+				}
+			
+				update_option('wp-autorefresh-version', WP_AUTO_REFRESH_VERSION);
+			}
+		});
 		
+		// Add nonce life update
 		if( apply_filters('autorefresh_nonce_life_enable', true) && DAY_IN_SECONDS !== $this->get_nonce_life() ) {
 			add_filter('nonce_life', [&$this, 'nonce_life'], 10, 1);
 		}
@@ -155,6 +171,14 @@ final class WP_Auto_Refresh{
             esc_attr__('Auto-Refresh Settings','autorefresh'), // Title
             [&$this, 'print_section_info'], // Callback
             'wp-autorefresh' // Page
+        );
+		
+		add_settings_field(
+            'global_refresh', // ID
+            esc_attr__('Auto-Refresh','autorefresh'), // Title 
+            [&$this, 'input_global_refresh__callback'], // Callback
+            'wp-autorefresh', // Page
+            'wp-autorefresh' // Section
         );
 		
 		add_settings_field(
@@ -235,6 +259,10 @@ final class WP_Auto_Refresh{
 		if( isset( $input['wp_admin'] ) ) {
             $new_input['wp_admin'] = absint( $input['wp_admin'] );
 		}
+		
+		if( isset( $input['global_refresh'] ) ) {
+            $new_input['global_refresh'] = absint( $input['global_refresh'] );
+		}
 
 		if( isset( $input['post_type'] ) ) {
             $new_input['post_type'] = array_filter(
@@ -278,6 +306,16 @@ final class WP_Auto_Refresh{
 	 */
 	public function print_section_info(){
 		printf('<p>%s</p>', __('Automatically reloads web pages after any number of minutes if the user or visitor is not active on the site.','autorefresh'));
+	}
+	
+	public function input_global_refresh__callback(){
+		printf(
+            '<label for="global_refresh"><input type="checkbox" id="global_refresh" name="wp-autorefresh[global_refresh]" value="1"%s/>%s</label><p class="description" style="margin-top:10px;"><strong>%s</strong> %s</p>',
+            ($this->enable_global_refresh() ? ' checked' : ''),
+			__('Enable auto refresh globally on the entire site.','autorefresh'),
+			__('INFO:','autorefresh'),
+			__('Even if this function is disabled, you can still choose for each page individually whether you want it to refresh.','autorefresh')
+        );
 	}
 	
 	/*
@@ -349,7 +387,7 @@ final class WP_Auto_Refresh{
 		}
 		
 		printf(
-			'<p style="margin-top:10px;">%s</p>',
+			'<p style="margin-top:10px;" class="description">%s</p>',
 			__('Enable autorefresh settings within pages and posts to have individual control.','autorefresh')
 		);
 	}
@@ -358,7 +396,23 @@ final class WP_Auto_Refresh{
 	 * Place JavaScript code inside `wp_head` to prevent brakeing by any other script.
 	 * This must be placed inside document <head> area to working properly.
 	 */
-	public function add_script(){ ?>
+	public function add_script(){
+		$can_disable = true;
+		if ($post_id = $this->get_single_post_id()) {
+			if (in_array(get_post_type($post_id), $this->enable_post_type())) {
+				if (get_post_meta($post_id, '_easy_auto_reload_mode', true) === 'disabled') {
+					return;
+				} else if (get_post_meta($post_id, '_easy_auto_reload_mode', true) === 'custom') {
+					$can_disable = false;
+				}
+			}
+		}
+		
+		
+		if(!$this->enable_global_refresh() && $can_disable) {
+			return;
+		}
+	?>
 	
 <!-- <?php printf(__('Auto-reload WordPress pages after %d minutes if there is no site activity.','autorefresh'), esc_html($this->get_timeout())); ?> -->
 <script>
@@ -459,11 +513,12 @@ final class WP_Auto_Refresh{
 			<select name="_auto_reload_mode" id="easy_auto_reload_mode" style="width:100%; max-width:90%;">
 				<option value="automatic" <?php selected( $select_value, 'automatic' ); ?>><?php esc_html_e('Automatic','autorefresh'); ?></option>
 				<option value="custom" <?php selected( $select_value, 'custom' ); ?>><?php esc_html_e('Custom','autorefresh'); ?></option>
+				<option value="disabled" <?php selected( $select_value, 'disabled' ); ?>><?php esc_html_e('Disabled','autorefresh'); ?></option>
 			</select>
 		</p>
 		<p>
 			<label for="easy_auto_reload_time"><?php esc_html_e('Refresh interval in minutes:','autorefresh'); ?></label>
-			<input type="number" name="_auto_reload_time" id="easy_auto_reload_time" value="<?php echo esc_attr( $number_value ); ?>" min="1" step="1" style="width:100%; max-width:100px;" />
+			<input type="number" name="_auto_reload_time" id="easy_auto_reload_time" value="<?php echo esc_attr( $number_value ); ?>" min="1" step="1" style="width:100%; max-width:100px;"<?php echo (in_array($select_value, ['disabled', 'automatic']) ? ' class="disabled" disabled' : ''); ?> />
 		</p>
 		<?php add_action('admin_footer', function() { ?>
 <script>
@@ -472,10 +527,12 @@ document.addEventListener('DOMContentLoaded', function () {
 	var timeInput = document.getElementById('easy_auto_reload_time');
 
 	function toggleTimeInput() {
-		if (modeSelect.value === 'automatic') {
+		if (['automatic', 'disabled'].indexOf(modeSelect.value) !== -1) {
 			timeInput.disabled = true;
+			timeInput.classList.add('disabled');
 		} else {
 			timeInput.disabled = false;
+			timeInput.classList.remove('disabled');
 		}
 	}
 	toggleTimeInput();
@@ -500,7 +557,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 		if ( isset( $_POST['_auto_reload_mode'] ) ) {
 			$select_value = sanitize_text_field( $_POST['_auto_reload_mode'] );
-			if ( $select_value === 'custom' ) {
+			if ( in_array($select_value, ['custom', 'disabled']) ) {
 				update_post_meta( $post_id, '_easy_auto_reload_mode', $select_value );
 			} else {
 				delete_post_meta( $post_id, '_easy_auto_reload_mode' );
@@ -590,7 +647,7 @@ document.addEventListener('DOMContentLoaded', function () {
 	 */
 	private function clear_cache(){
 		$wp_autorefresh = ( !empty($this->options) ? $this->options : get_option('wp-autorefresh', array()) );
-		return (isset( $wp_autorefresh['clear_cache'] ) && $wp_autorefresh['clear_cache'] ? true : false);
+		return ($wp_autorefresh['clear_cache'] ?? false ? true : false);
 	}
 	
 	/*
@@ -598,7 +655,7 @@ document.addEventListener('DOMContentLoaded', function () {
 	 */
 	private function enable_in_admin(){
 		$wp_autorefresh = ( !empty($this->options) ? $this->options : get_option('wp-autorefresh', array()) );
-		return (isset( $wp_autorefresh['wp_admin'] ) && $wp_autorefresh['wp_admin'] ? true : false);
+		return ($wp_autorefresh['wp_admin'] ?? false ? true : false);
 	}
 	
 	/*
@@ -606,7 +663,15 @@ document.addEventListener('DOMContentLoaded', function () {
 	 */
 	private function enable_post_type(){
 		$wp_autorefresh = ( !empty($this->options) ? $this->options : get_option('wp-autorefresh', array()) );
-		return (isset( $wp_autorefresh['post_type'] ) && $wp_autorefresh['post_type'] ? $wp_autorefresh['post_type'] : []);
+		return ( $wp_autorefresh['post_type'] ?? [] );
+	}
+	
+	/*
+	 * Enable autoefresh inside member types
+	 */
+	private function enable_global_refresh(){
+		$wp_autorefresh = ( !empty($this->options) ? $this->options : get_option('wp-autorefresh', array()) );
+		return ((int)($wp_autorefresh['global_refresh']??0)) === (3/3);
 	}
 	
 	/*
