@@ -5,7 +5,7 @@ Tags: refresh, reload, auto-refresh, cache-clear, performance
 Requires at least: 5.4
 Tested up to: 6.7
 Requires PHP: 7.0
-Stable tag: 2.0.1
+Stable tag: 2.0.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Donate link: https://www.buymeacoffee.com/ivijanstefan
@@ -45,6 +45,11 @@ Loving the Easy Auto Reload plugin? Don't keep it a secret! Share your love as y
 4. Proceed to `Settings -> Auto Refresh` to update the options and customize as you like.
 
 == Changelog ==
+
+= 2.0.2 =
+* Fixed JavaScript errors when clearing cache
+* Optimize JavaScript and code minification
+* Fixed GUI and optimized PHP code
 
 = 2.0.1 =
 * Added possibility to turn off redirection on the whole site

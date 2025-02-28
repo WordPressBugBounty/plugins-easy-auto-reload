@@ -1,62 +1,39 @@
 (function () {
-    var process_scripts = false
-		rep = /.*\?.*/,
-		links = document.getElementsByTagName('link'),
-		images = document.getElementsByTagName('img'),
-		scripts = document.getElementsByTagName('script')
-		value = document.getElementsByName('clear-browser-cache');
-    
-	if(value) {
-		for (var i = 0; i < value.length; i++) {
-			var val = value[i],
-				outerHTML = val.outerHTML,
-				check = /.*value="true".*/;
-			if (check.test(outerHTML)) {
-				process_scripts = true;
-			}
-		}
-	}
-    
-	if(links) {
-		for (var i = 0; i < links.length; i++) {
-			var link = links[i],
-				href = link.href;
-			if(href) {
-				if (rep.test(href)) {
-					link.href = href + '&' + Date.now();
-				} else {
-					link.href = href + '?' + Date.now();
-				}
-			}
-		}
-	}
-	
-	if(images) {
-		for (var i = 0; i < images.length; i++) {
-			var image = images[i],
-				src = image.src;
-			if (src !== "") {
-				if (rep.test(src)) {
-					image.src = src + '&' + Date.now();
-				}
-				else {
-					image.src = src + '?' + Date.now();
-				}
-			}
-		}
-	}
-	
-    if (process_scripts && scripts) {
-        for (var i = 0; i < scripts.length; i++) {
-            var script = scripts[i],
-				src = script.src;
-            if (src !== "") {
-                if (rep.test(src)) {
-                    script.src = src + '&' + Date.now();
-                } else {
-                    script.src = src + '?' + Date.now();
-                }
+    let process_scripts = false;
+    const rep = /.*\?.*/;
+    const links = document.getElementsByTagName('link');
+    const images = document.getElementsByTagName('img');
+    const scripts = document.getElementsByTagName('script');
+    const values = document.getElementsByName('clear-browser-cache');
+
+    if (values.length > 0) {
+        for (let i = 0; i < values.length; i++) {
+            if (values[i].value === "true") {
+                process_scripts = true;
+                break;
             }
+        }
+    }
+
+    const updateUrl = (element, attr) => {
+        if (element[attr]) {
+            let url = new URL(element[attr], window.location.origin);
+            url.searchParams.set('t', Date.now());
+            element[attr] = url.toString();
+        }
+    };
+
+    for (let i = 0; i < links.length; i++) {
+        updateUrl(links[i], 'href');
+    }
+
+    for (let i = 0; i < images.length; i++) {
+        updateUrl(images[i], 'src');
+    }
+
+    if (process_scripts) {
+        for (let i = 0; i < scripts.length; i++) {
+            updateUrl(scripts[i], 'src');
         }
     }
 })();

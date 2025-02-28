@@ -4,7 +4,7 @@
  * Plugin Name:       Easy Auto Reload
  * Plugin URI:        https://infinitumform.com
  * Description:       Auto refresh WordPress pages if there is no site activity after after any number of minutes.
- * Version:           2.0.1
+ * Version:           2.0.2
  * Author:            Ivijan-Stefan Stipic
  * Author URI:        https://www.linkedin.com/in/ivijanstefanstipic/
  * License:           GPL-2.0+
@@ -34,6 +34,7 @@ if ( ! defined( 'ABSPATH' ) ) { exit; }
 if ( ! defined( 'WP_AUTO_REFRESH_VERSION' ) ) { define( 'WP_AUTO_REFRESH_VERSION', '2.0.1' ); }
 
 final class WP_Auto_Refresh{
+
 	/*
 	 * Private cached class object
 	 */
@@ -100,7 +101,7 @@ final class WP_Auto_Refresh{
 			add_filter('nonce_life', [&$this, 'nonce_life'], 10, 1);
 		}
 	}
-
+	
 	/*
 	 * Nonce Life
 	 */
@@ -116,46 +117,33 @@ final class WP_Auto_Refresh{
 		if (empty($this->options)) {
 			$this->options = get_option('wp-autorefresh', array());
 		}
-		
-		// Define the text domain
-		$textdomain = 'autorefresh';
-		
+
+		// Define text domain
+		$domain = 'autorefresh';
+
+		// First, attempt to load translations from the WordPress languages directory
+		load_plugin_textdomain($domain, false, WP_LANG_DIR . "/plugins/");
+
 		// Check if the text domain is already loaded
-		if (!is_textdomain_loaded($textdomain)) {
-			// Determine the locale
-			$locale = apply_filters("{$textdomain}_locale", get_locale(), $textdomain);
-			
-			// Standard .mo file format
-			$mofile = "{$textdomain}-{$locale}.mo";
+		if (!is_textdomain_loaded($domain)) {
+			$locale = apply_filters("{$domain}_locale", get_locale(), $domain);
+			$domain_path = __DIR__ . '/languages';
 
-			// Order of loading .mo files
-			// 1. Load from `/wp-content/languages/plugins`
-			$loaded = load_textdomain($textdomain, WP_LANG_DIR . "/plugins/{$mofile}");
+			// Possible .mo file locations
+			$mo_files = [
+				"{$domain_path}/{$domain}-{$locale}.mo",
+				"{$domain_path}/{$locale}.mo"
+			];
 
-			// 2. Load from `/wp-content/languages`
-			if (!$loaded) {
-				$loaded = load_textdomain($textdomain, WP_LANG_DIR . "/{$mofile}");
-			}
-
-			// 3. Load from `/wp-content/plugins/autorefresh/languages`
-			if (!$loaded) {
-				$domain_path = __DIR__ . '/languages';
-				$loaded = load_textdomain($textdomain, "{$domain_path}/{$mofile}");
-
-				// 4. Load with just the locale, without the prefix
-				if (!$loaded) {
-					$loaded = load_textdomain($textdomain, "{$domain_path}/{$locale}.mo");
+			// Try to load the translation file
+			foreach ($mo_files as $mo_file) {
+				if (file_exists($mo_file) && load_textdomain($domain, $mo_file)) {
+					break;
 				}
-			}
-
-			// If all else fails, use load_plugin_textdomain
-			if (!$loaded) {
-				load_plugin_textdomain($textdomain, false, "{$domain_path}");
 			}
 		}
 	}
 
-	
 	/*
 	 * Initialize admin settings
 	 */
@@ -239,45 +227,37 @@ final class WP_Auto_Refresh{
 		);
 	}
 	
-	 /**
+	/**
      * Sanitize each setting field as needed
      *
      * @param array $input Contains all settings fields as array keys
      */
-    public function sanitize( $input )
-    {
-        $new_input = array();
-        
-		if( isset( $input['timeout'] ) ) {
-            $new_input['timeout'] = absint( $input['timeout'] );
-		}
-		
-		if( isset( $input['clear_cache'] ) ) {
-            $new_input['clear_cache'] = absint( $input['clear_cache'] );
-		}
-		
-		if( isset( $input['wp_admin'] ) ) {
-            $new_input['wp_admin'] = absint( $input['wp_admin'] );
-		}
-		
-		if( isset( $input['global_refresh'] ) ) {
-            $new_input['global_refresh'] = absint( $input['global_refresh'] );
+    public function sanitize($input) {
+		$fields = [
+			'timeout',
+			'clear_cache',
+			'wp_admin',
+			'global_refresh',
+			'nonce_life'
+		];
+
+		$new_input = [];
+
+		// Sanitize integer fields
+		foreach ($fields as $field) {
+			if (isset($input[$field])) {
+				$new_input[$field] = absint($input[$field]);
+			}
 		}
 
-		if( isset( $input['post_type'] ) ) {
-            $new_input['post_type'] = array_filter(
-				is_array($input['post_type']) 
-				? array_map('sanitize_text_field', $input['post_type']) 
-				: []
-			);
-		}
-		
-		if( isset( $input['nonce_life'] ) ) {
-            $new_input['nonce_life'] = absint( $input['nonce_life'] );
+		// Sanitize post_type separately since it's an array
+		if (!empty($input['post_type']) && is_array($input['post_type'])) {
+			$new_input['post_type'] = array_map('sanitize_text_field', array_filter($input['post_type']));
 		}
 
-        return $new_input;
-    }
+		return $new_input;
+	}
+
 	
 	/*
 	 * Create options page
@@ -334,7 +314,7 @@ final class WP_Auto_Refresh{
 	 */
 	public function input_nonce_life__callback(){
 		printf(
-            '<input type="number" min="1" step="1" id="nonce_life" name="wp-autorefresh[nonce_life]" value="%d" /><p class="description"><strong>%s</strong><br>%s</p>',
+            '<input type="number" min="1" step="1" id="nonce_life" name="wp-autorefresh[nonce_life]" value="%d" /><p class="description"><strong style="color: #cc0000;">%s</strong><br>%s</p>',
             esc_attr($this->get_nonce_life()),
 			__('WARNING: Do not change if you are not sure what it is for.','autorefresh'),
 			__('This field is used to define the lifespan of nonces in seconds. By default, nonces have a lifespan of 86,400 seconds, which is equivalent to one day. It\'s important to exercise caution when considering any extensions to this value, as longer lifespans may introduce security risks by extending the window of opportunity for potential attacks. Please ensure you carefully assess your security requirements before making changes to this setting.','autorefresh')
@@ -414,13 +394,10 @@ final class WP_Auto_Refresh{
 		}
 	?>
 	
-<!-- <?php printf(__('Auto-reload WordPress pages after %d minutes if there is no site activity.','autorefresh'), esc_html($this->get_timeout())); ?> -->
-<script>
-/* <![CDATA[ */
-(function() {
-    if (typeof wp == 'undefined') {
-        var wp = {};
-    }
+<!-- <?php printf(__('Auto-reload WordPress pages after %d minutes if there is no site activity.','autorefresh'), esc_html($this->get_timeout())); ?> --><?php ob_start(); ?>
+<script>/* <![CDATA[ */
+(function () {
+    window.wp = window.wp || {};
 
     wp.autorefresh = {
         setTimeOutId: null,
@@ -435,49 +412,67 @@ final class WP_Auto_Refresh{
             'scroll': 'window',
             'scrollstart': 'window'
         },
-        callback: function() {
+        callback: function () {
             if (wp.autorefresh.setTimeOutId) {
                 clearTimeout(wp.autorefresh.setTimeOutId);
             }
-            wp.autorefresh.setTimeOutId = setTimeout(function() {
-                <?php if($this->clear_cache()) : ?>
-                var head = document.getElementsByTagName('head')[0],
-                    script = document.createElement("script");
+            wp.autorefresh.setTimeOutId = setTimeout(function () {
+                <?php if ($this->clear_cache()) : ?>
+                var head = document.head || document.getElementsByTagName('head')[0];
+                if (!head) return;
 
-                script.src = "<?php echo rtrim(plugin_dir_url(__FILE__), '/') . '/assets/js/clear-browser-cache.js'; ?>";
+                var script = document.createElement("script");
+                script.src = "<?php echo esc_url(plugin_dir_url(__FILE__) . 'assets/js/clear-browser-cache.min.js'); ?>";
                 script.type = 'text/javascript';
                 script.async = true;
                 head.appendChild(script);
-                script.onload = function() {
-                    if (typeof caches !== 'undefined') {
-                        caches.keys().then((keyList) => Promise.all(keyList.map((key) => caches.delete(key))));
-                    } else {
-                        // Fallback for browsers that do not support caches API
-                        var cacheFallbackScript = document.createElement("script");
-                        cacheFallbackScript.text = "if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().then(function(registrations) {for(let registration of registrations) {registration.unregister();}});}";
-                        head.appendChild(cacheFallbackScript);
+
+                script.onload = function () {
+                    if (typeof caches !== 'undefined' && caches.keys) {
+                        caches.keys().then(function (keyList) {
+                            return Promise.all(keyList.map(function (key) {
+                                return caches.delete(key);
+                            }));
+                        }).catch(function (err) {
+                            console.warn("<?php esc_attr_e('Cache clearing failed:','autorefresh'); ?>", err);
+                        });
+                    } else if ('serviceWorker' in navigator) {
+                        navigator.serviceWorker.getRegistrations().then(function (registrations) {
+                            for (let registration of registrations) {
+                                registration.unregister();
+                            }
+                        }).catch(function (err) {
+                            console.warn("<?php esc_attr_e('Service Worker unregister failed:','autorefresh'); ?>", err);
+                        });
                     }
                 };
                 <?php endif; ?>
+				
                 location.reload();
-            }, (1e3 * 60 * <?php echo esc_attr($this->get_timeout()); ?>));
+            }, 1000 * 60 * <?php echo json_encode($this->get_timeout()); ?>);
         }
     };
 
-    for (var event in wp.autorefresh.events) {
-        if (wp.autorefresh.events.hasOwnProperty(event)) {
-            if (wp.autorefresh.events[event] === 'document') {
-                document.addEventListener(event, wp.autorefresh.callback);
-            } else if (wp.autorefresh.events[event] === 'window') {
-                window.addEventListener(event, wp.autorefresh.callback);
-            }
-        }
-    }
-}());
-/* ]]> */
-</script>
+    Object.keys(wp.autorefresh.events).forEach(function (event) {
+        var target = wp.autorefresh.events[event] === 'document' ? document : window;
+        target.addEventListener(event, wp.autorefresh.callback);
+    });
+})();
+/* ]]> */</script>
 <noscript><meta http-equiv="refresh" content="<?php echo esc_attr($this->get_timeout() * 60); ?>"></noscript>
-	<?php }
+	<?php $js_code = ob_get_clean();
+		echo preg_replace(
+			[
+				'/\s+/',
+				'/\s*([{};,:])\s*/'
+			],
+			[
+				' ',
+				'$1'
+			],
+			$js_code
+		);
+	}
 	
 	/*
 	 * Add the metabox
@@ -509,19 +504,43 @@ final class WP_Auto_Refresh{
 		$number_value = get_post_meta( $post->ID, '_easy_auto_reload_time', true )?:$this->get_timeout();
 		?>
 		<p>
-			<label for="easy_auto_reload_mode"><?php esc_html_e('Refresh option:','autorefresh'); ?></label><br>
+			<label for="easy_auto_reload_mode"><?php esc_html_e('Refresh option:', 'autorefresh'); ?></label><br>
 			<select name="_auto_reload_mode" id="easy_auto_reload_mode" style="width:100%; max-width:90%;">
-				<option value="automatic" <?php selected( $select_value, 'automatic' ); ?>><?php esc_html_e('Automatic','autorefresh'); ?></option>
-				<option value="custom" <?php selected( $select_value, 'custom' ); ?>><?php esc_html_e('Custom','autorefresh'); ?></option>
-				<option value="disabled" <?php selected( $select_value, 'disabled' ); ?>><?php esc_html_e('Disabled','autorefresh'); ?></option>
+				<?php
+				$options = [
+					'automatic' => __('Automatic', 'autorefresh'),
+					'custom'    => __('Custom', 'autorefresh'),
+					'disabled'  => __('Disabled', 'autorefresh')
+				];
+
+				// Loop kroz opcije
+				foreach ($options as $value => $label) {
+					printf(
+						'<option value="%s" %s>%s</option>',
+						esc_attr($value),
+						selected($select_value, $value, false),
+						esc_html($label)
+					);
+				}
+				?>
 			</select>
 		</p>
 		<p>
-			<label for="easy_auto_reload_time"><?php esc_html_e('Refresh interval in minutes:','autorefresh'); ?></label>
-			<input type="number" name="_auto_reload_time" id="easy_auto_reload_time" value="<?php echo esc_attr( $number_value ); ?>" min="1" step="1" style="width:100%; max-width:100px;"<?php echo (in_array($select_value, ['disabled', 'automatic']) ? ' class="disabled" disabled' : ''); ?> />
+			<label for="easy_auto_reload_time"><?php esc_html_e('Refresh interval in minutes:', 'autorefresh'); ?></label>
+			<input 
+				type="number" 
+				name="_auto_reload_time" 
+				id="easy_auto_reload_time" 
+				value="<?php echo esc_attr($number_value); ?>" 
+				min="1" 
+				step="1" 
+				style="width: 100%; max-width: 100px;" 
+				<?php echo in_array($select_value, ['disabled', 'automatic']) ? 'class="disabled" disabled' : ''; ?>
+			/>
 		</p>
 		<?php add_action('admin_footer', function() { ?>
 <script>
+/* <![CDATA[ */
 document.addEventListener('DOMContentLoaded', function () {
 	var modeSelect = document.getElementById('easy_auto_reload_mode');
 	var timeInput = document.getElementById('easy_auto_reload_time');
@@ -538,6 +557,7 @@ document.addEventListener('DOMContentLoaded', function () {
 	toggleTimeInput();
 	modeSelect.addEventListener('change', toggleTimeInput);
 });
+/* ]]> */
 </script>
 		<?php }, 1, 0);
 	}
