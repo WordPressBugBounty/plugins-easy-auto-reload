@@ -3,46 +3,63 @@ Contributors: creativform, ivijanstefan
 Donate link: 
 Tags: refresh, reload, auto-refresh, cache-clear, performance
 Requires at least: 5.4
-Tested up to: 6.7
+Tested up to: 6.8
 Requires PHP: 7.0
 Stable tag: 2.0.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
-Donate link: https://www.buymeacoffee.com/ivijanstefan
 
-Auto Refresh & Reload plugin for WordPress. Keep your website fresh by refreshing page after a set interval. Perfect for nonces & abandoned pages.
+Auto-refresh your WordPress pages on user inactivity. Keep sessions alive, nonces fresh, and engagement high with this lightweight plugin.
 
 == Description ==
 
-Welcome to the bustling world of the digital café, where visitors explore, indulge, and sometimes linger a little too long. Introducing the Easy Auto Reload plugin, your virtual barista, ensuring that your website always offers a fresh and engaging experience.
+**Easy Auto Reload** is your site’s invisible caretaker — quietly watching, waiting, and reloading when your visitors fall into stillness. Just as Newton observed celestial bodies in motion, this plugin ensures your digital universe remains dynamic and alert.
 
-### What Does It Do?
+This plugin automatically **refreshes your page after a configurable period of user inactivity**. Perfect for WooCommerce sessions, dashboards, or any page with data or tokens that expire over time.
 
-Think of Easy Auto Reload as a continual caffeine injection for your website. It's designed to:
+Your website shall not slumber. Not today.
 
-- Refresh the page automatically after a defined interval if there's no activity from the visitor.
-- Keep things lively and engaging, attracting more footfall to your digital café.
-- Avoid unnecessary reloads if the visitor is actively interacting, thus offering a seamless browsing experience.
-- Refresh only when the café is unattended or if a new tab opens the site.
+== Features ==
 
-### Why Do You Need It?
+- 💡 **Smart Refresh:** Reloads page **only if the user is idle**.
+- 🕵️ **No Intrusion:** No reloads during activity (mouse, keyboard, scrolling).
+- 🧠 **Multi-Tab Aware:** Works well across tabs — no unnecessary reloads.
+- ⚙️ **Ultra-Lightweight:** Pure JavaScript, no jQuery dependency.
+- 🔐 **Security Friendly:** Helps avoid expired nonce issues and keeps sessions fresh.
+- ☕ **Hands-Off Setup:** Set the interval once. It just works.
 
-This plugin is a must-have for managing those pesky nonces that occasionally require a refresh. Its setup is as easy as pouring a cup of coffee. Just input the number of minutes between reloads, and presto! Your website will pulsate with the liveliness of a bustling café.
+== Why Use It? ==
 
-Treat your website to the Easy Auto Reload plugin. It's a refreshing touch that your digital space deserves.
+Much like Newton’s gravity keeps planets in orbit, this plugin keeps your visitors’ sessions from drifting into error pages and timeouts. Whether you’re running:
 
-Cheers!
+- 🔄 WooCommerce shops where sessions must persist
+- 📊 Dashboards or single-page apps that time out
+- 🔐 Secure areas where nonces expire silently
+- 💼 Membership portals that require constant presence
 
-= P.S. =
-
-Loving the Easy Auto Reload plugin? Don't keep it a secret! Share your love as you would share a delicious cookie with a friend. Cast your vote and let the world know that this plugin is revolutionizing your website. Your voice matters, and every vote counts! And hey, if you feel like fueling the creator behind this innovation, why not [buy me a coffee or two](https://www.buymeacoffee.com/ivijanstefan)? Just like your website thrives on refreshment, developers thrive on coffee. Cheers to more lively web experiences!
+**Easy Auto Reload** solves the timeless problem of the idle browser tab — gracefully.
 
 == Installation ==
 
-1. Navigate to `WP-Admin -> Plugins -> Add New`, search for "Auto Refresh," and click the "Install" button.
-2. Alternatively, upload **autorefresh.zip** to `/wp-content/plugins` directory via the WordPress admin panel or upload the unzipped folder to your plugins folder via FTP.
-3. Activate the plugin through the "Plugins" menu in WordPress.
-4. Proceed to `Settings -> Auto Refresh` to update the options and customize as you like.
+1. Upload the plugin files to `/wp-content/plugins/easy-auto-reload`, or install via Plugins > Add New.
+2. Activate the plugin.
+3. Go to **Settings → Easy Auto Reload**.
+4. Choose a refresh interval in minutes.
+5. Save. You're done.
+
+== Frequently Asked Questions ==
+
+= Does the plugin reload while the user is interacting with the page? =  
+No. It detects activity (mouse movement, key presses, scrolling) and only reloads when the user is completely idle.
+
+= Is this plugin good for WooCommerce session expiration? =  
+Yes! Especially useful for keeping carts alive and nonce values refreshed during checkout.
+
+= Will this conflict with caching plugins? =  
+Not at all. This plugin uses client-side JavaScript and works seamlessly with WP Super Cache, W3 Total Cache, and others.
+
+= Can I disable reload on specific pages? =  
+Yes! You can inside "Auto Reload" metabox.
 
 == Changelog ==
 
