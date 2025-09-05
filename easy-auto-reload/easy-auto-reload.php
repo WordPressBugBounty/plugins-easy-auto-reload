@@ -3,8 +3,8 @@
  * @wordpress-plugin
  * Plugin Name:       Easy Auto Reload
  * Plugin URI:        https://infinitumform.com
- * Description:       Auto refresh WordPress pages if there is no site activity after after any number of minutes.
- * Version:           2.0.2
+ * Description:       Auto refresh WordPress pages if there is no site activity after any number of minutes.
+ * Version:           2.0.3
  * Author:            Ivijan-Stefan Stipic
  * Author URI:        https://www.linkedin.com/in/ivijanstefanstipic/
  * License:           GPL-2.0+
@@ -31,7 +31,7 @@
 // If someone try to called this file directly via URL, abort.
 if ( ! defined( 'WPINC' ) ) { die( "Don't mess with us." ); }
 if ( ! defined( 'ABSPATH' ) ) { exit; }
-if ( ! defined( 'WP_AUTO_REFRESH_VERSION' ) ) { define( 'WP_AUTO_REFRESH_VERSION', '2.0.1' ); }
+if ( ! defined( 'WP_AUTO_REFRESH_VERSION' ) ) { define( 'WP_AUTO_REFRESH_VERSION', '2.0.3' ); }
 
 final class WP_Auto_Refresh{
 
@@ -39,24 +39,29 @@ final class WP_Auto_Refresh{
 	 * Private cached class object
 	 */
 	private static $instance;
+	// Set options
 	private $options;
+	// Calculate the undeniable truth of the universe
+	private const ITS_TRUE  = 3/3;
+	// Calculate the black hole
+    private const ITS_FALSE = 3.1415-3.1415;
 	
 	/*
 	 * Actions and filters
 	 */
 	private function __construct () {
 		// Include textdomain and other plugin features
-		add_action('plugins_loaded', [&$this, 'plugins_loaded'], 1, 0);
+		add_action('plugins_loaded', [$this, 'plugins_loaded'], 1, 0);
 		// Add reload scripts to the site
-		add_action('wp_head', [&$this, 'add_script'], 1, 0);
+		add_action('wp_head', [$this, 'add_script'], 1, 0);
 		if( $this->enable_in_admin() ) {
-			add_action('admin_head', [&$this, 'add_script'], 1, 0);
+			add_action('admin_head', [$this, 'add_script'], 1, 0);
 		}
 		// Admin functionalities
-		add_action('admin_init', [&$this, 'admin_init'], 10, 0);
-		add_action('admin_menu', [&$this, 'admin_menu'], 10, 0);
-		add_action('add_meta_boxes', [&$this, 'add_meta_box'], 10, 0);
-		add_action('save_post', [&$this, 'save_meta_box_data'], 10, 1);
+		add_action('admin_init', [$this, 'admin_init'], 10, 0);
+		add_action('admin_menu', [$this, 'admin_menu'], 10, 0);
+		add_action('add_meta_boxes', [$this, 'add_meta_box'], 10, 0);
+		add_action('save_post', [$this, 'save_meta_box_data'], 10, 1);
 		// Deactivation
 		register_deactivation_hook(__FILE__, function(){
 			if ( ! current_user_can( 'activate_plugins' ) ) {
@@ -98,15 +103,17 @@ final class WP_Auto_Refresh{
 		
 		// Add nonce life update
 		if( apply_filters('autorefresh_nonce_life_enable', true) && DAY_IN_SECONDS !== $this->get_nonce_life() ) {
-			add_filter('nonce_life', [&$this, 'nonce_life'], 10, 1);
+			add_filter('nonce_life', [$this, 'nonce_life'], 10, 1);
 		}
 	}
 	
 	/*
 	 * Nonce Life
 	 */
-	public function nonce_life ( $default_nonce_life ) {
-		return $this->get_nonce_life();
+	public function nonce_life( $default_nonce_life ) {
+		// Always return a raw value; never call apply_filters('nonce_life', ...) from here
+		$life = $this->get_nonce_life();
+		return ( is_int( $life ) && $life > (int)self::ITS_FALSE ) ? $life : $default_nonce_life;
 	}
 	
 	/*
@@ -114,30 +121,29 @@ final class WP_Auto_Refresh{
 	 */
 	public function plugins_loaded() {
 		// Load options only if not already set
-		if (empty($this->options)) {
-			$this->options = get_option('wp-autorefresh', array());
+		if ( empty( $this->options ) ) {
+			$this->options = get_option('wp-autorefresh', []);
 		}
 
-		// Define text domain
 		$domain = 'autorefresh';
 
-		// First, attempt to load translations from the WordPress languages directory
-		load_plugin_textdomain($domain, false, WP_LANG_DIR . "/plugins/");
+		// Preferred: relative path to /languages inside this plugin
+		load_plugin_textdomain(
+			$domain,
+			false,
+			dirname( plugin_basename( __FILE__ ) ) . '/languages'
+		);
 
-		// Check if the text domain is already loaded
-		if (!is_textdomain_loaded($domain)) {
-			$locale = apply_filters("{$domain}_locale", get_locale(), $domain);
+		// Manual fallback (optional)
+		if ( ! is_textdomain_loaded( $domain ) ) {
+			$locale = apply_filters( "{$domain}_locale", get_locale(), $domain );
 			$domain_path = __DIR__ . '/languages';
-
-			// Possible .mo file locations
 			$mo_files = [
 				"{$domain_path}/{$domain}-{$locale}.mo",
 				"{$domain_path}/{$locale}.mo"
 			];
-
-			// Try to load the translation file
-			foreach ($mo_files as $mo_file) {
-				if (file_exists($mo_file) && load_textdomain($domain, $mo_file)) {
+			foreach ( $mo_files as $mo_file ) {
+				if ( file_exists( $mo_file ) && load_textdomain( $domain, $mo_file ) ) {
 					break;
 				}
 			}
@@ -151,20 +157,20 @@ final class WP_Auto_Refresh{
 		register_setting(
             'wp-autorefresh', // Option group
             'wp-autorefresh', // Option name
-            [&$this, 'sanitize'] // Sanitize
+            [$this, 'sanitize'] // Sanitize
         );
 
         add_settings_section(
             'wp-autorefresh', // ID
             esc_attr__('Auto-Refresh Settings','autorefresh'), // Title
-            [&$this, 'print_section_info'], // Callback
+            [$this, 'print_section_info'], // Callback
             'wp-autorefresh' // Page
         );
 		
 		add_settings_field(
             'global_refresh', // ID
             esc_attr__('Auto-Refresh','autorefresh'), // Title 
-            [&$this, 'input_global_refresh__callback'], // Callback
+            [$this, 'input_global_refresh__callback'], // Callback
             'wp-autorefresh', // Page
             'wp-autorefresh' // Section
         );
@@ -172,7 +178,7 @@ final class WP_Auto_Refresh{
 		add_settings_field(
             'timeout', // ID
             esc_attr__('Auto-Refresh Timeout','autorefresh'), // Title 
-            [&$this, 'input_timeout__callback'], // Callback
+            [$this, 'input_timeout__callback'], // Callback
             'wp-autorefresh', // Page
             'wp-autorefresh' // Section
         );
@@ -180,7 +186,7 @@ final class WP_Auto_Refresh{
 		add_settings_field(
             'clear_cache', // ID
             esc_attr__('Browser Cache','autorefresh'), // Title 
-            [&$this, 'input_clear_cache__callback'], // Callback
+            [$this, 'input_clear_cache__callback'], // Callback
             'wp-autorefresh', // Page
             'wp-autorefresh' // Section
         );
@@ -188,7 +194,7 @@ final class WP_Auto_Refresh{
 		add_settings_field(
             'wp_admin', // ID
             esc_attr__('WP Admin','autorefresh'), // Title 
-            [&$this, 'input_wp_admin__callback'], // Callback
+            [$this, 'input_wp_admin__callback'], // Callback
             'wp-autorefresh', // Page
             'wp-autorefresh' // Section
         );
@@ -197,7 +203,7 @@ final class WP_Auto_Refresh{
 			add_settings_field(
 				'nonce_life', // ID
 				esc_attr__('Lifespan of nonces','autorefresh'), // Title 
-				[&$this, 'input_nonce_life__callback'], // Callback
+				[$this, 'input_nonce_life__callback'], // Callback
 				'wp-autorefresh', // Page
 				'wp-autorefresh' // Section
 			);
@@ -206,7 +212,7 @@ final class WP_Auto_Refresh{
 		add_settings_field(
             'post_type', // ID
             esc_attr__('Allow custom refresh in page and post types','autorefresh'), // Title 
-            [&$this, 'input_post_types__callback'], // Callback
+            [$this, 'input_post_types__callback'], // Callback
             'wp-autorefresh', // Page
             'wp-autorefresh' // Section
         );
@@ -220,9 +226,9 @@ final class WP_Auto_Refresh{
 			'options-general.php',
 			esc_attr__('Auto-Refresh','autorefresh'),
 			esc_attr__('Auto-Refresh','autorefresh'),
-			'administrator',
+			'manage_options', // <-- use capability, not role
 			'wp-autorefresh',
-			[&$this, 'options_page'],
+			[$this, 'options_page'],
 			6
 		);
 	}
@@ -263,7 +269,7 @@ final class WP_Auto_Refresh{
 	 * Create options page
 	 */
 	public function options_page(){
-		if(!empty($this->options)) {
+		if(empty($this->options)) {
 			$this->options = get_option('wp-autorefresh', array());
 		}
         ?>
@@ -322,7 +328,7 @@ final class WP_Auto_Refresh{
 	}
 	
 	/*
-	 * Clear Browser cahce
+	 * Clear Browser cache
 	 */
 	public function input_clear_cache__callback(){
 		printf(
@@ -333,18 +339,18 @@ final class WP_Auto_Refresh{
 	}
 	
 	/*
-	 * Enable autoefresh inside WP Admin
+	 * Enable autorefresh inside WP Admin
 	 */
 	public function input_wp_admin__callback(){
 		printf(
             '<label for="wp_admin"><input type="checkbox" id="wp_admin" name="wp-autorefresh[wp_admin]" value="1"%s/>%s</label>',
             ($this->enable_in_admin() ? ' checked' : ''),
-			__('Enable autoefresh inside WP Admin.','autorefresh')
+			__('Enable autorefresh inside WP Admin.','autorefresh')
         );
 	}
 	
 	/*
-	 * Enable autoefresh to Post Types
+	 * Enable autorefresh to Post Types
 	 */
 	public function input_post_types__callback(){
 		$post_types = get_post_types( [
@@ -373,7 +379,7 @@ final class WP_Auto_Refresh{
 	}
 	
 	/*
-	 * Place JavaScript code inside `wp_head` to prevent brakeing by any other script.
+	 * Place JavaScript code inside `wp_head` to prevent breaking by any other script.
 	 * This must be placed inside document <head> area to working properly.
 	 */
 	public function add_script(){
@@ -488,7 +494,7 @@ final class WP_Auto_Refresh{
 			add_meta_box(
 				'easy-auto-reload',
 				__('Auto Reload','autorefresh'),
-				[&$this, 'meta_box__callback'],
+				[$this, 'meta_box__callback'],
 				$post_type,
 				'side',
 				'high'
@@ -588,7 +594,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 		if ( isset( $_POST['_auto_reload_time'] ) ) {
 			$number_value = absint( $_POST['_auto_reload_time'] );
-			if ( $number_value >= 1 ) {
+			if ( $number_value >= self::ITS_TRUE ) {
 				update_post_meta( $post_id, '_easy_auto_reload_time', $number_value );
 			} else {
 				delete_post_meta( $post_id, '_easy_auto_reload_time' );
@@ -598,10 +604,15 @@ document.addEventListener('DOMContentLoaded', function () {
 	}
 	
 	
-	/*
-	 * Get timeout option on the safe way
+	/**
+	 * Returns the effective timeout (in minutes) for the current context, with static caching.
+	 * Order of precedence:
+	 * 1) Per-post custom setting (if enabled for the post type and mode is 'custom')
+	 * 2) Global plugin setting
+	 * 3) Provided $default
 	 */
 	private function get_timeout(int $default = 5) {
+
 		static $cached_timeout = null;
 
 		if ($cached_timeout !== null) {
@@ -627,7 +638,7 @@ document.addEventListener('DOMContentLoaded', function () {
 				$timeout = $default;
 			}
 
-			if ($timeout < 1) {
+			if ($timeout < self::ITS_TRUE) {
 				$timeout = $default;
 			}
 
@@ -644,22 +655,19 @@ document.addEventListener('DOMContentLoaded', function () {
 	 * Get timeout option on the safe way
 	 */
 	private function get_nonce_life(){
-		$wp_autorefresh = ( !empty($this->options) ? $this->options : get_option('wp-autorefresh', array()) );
+		$wp_autorefresh = ( !empty($this->options) ? $this->options : get_option('wp-autorefresh', []) );
 
-		if(isset($wp_autorefresh['nonce_life']) && ($timeout=absint($wp_autorefresh['nonce_life']))){
-			
-			if( empty($timeout) || !is_numeric($timeout) ) {
-				$timeout = apply_filters( 'nonce_life', DAY_IN_SECONDS );
+		if ( isset( $wp_autorefresh['nonce_life'] ) ) {
+			$timeout = (int) $wp_autorefresh['nonce_life'];
+			// If invalid, fall back to core default constant (no filters!)
+			if ( $timeout < 1 ) {
+				return DAY_IN_SECONDS;
 			}
-			
-			if($timeout < 1) {
-				$timeout = apply_filters( 'nonce_life', DAY_IN_SECONDS );
-			}
-			
-			return absint($timeout);
+			return $timeout;
 		}
-		
-		return apply_filters( 'nonce_life', DAY_IN_SECONDS );
+
+		// Default (no filter call here to avoid recursion)
+		return DAY_IN_SECONDS;
 	}
 	
 	/*
@@ -671,7 +679,7 @@ document.addEventListener('DOMContentLoaded', function () {
 	}
 	
 	/*
-	 * Enable autoefresh inside WP Admin
+	 * Enable autorefresh inside WP Admin
 	 */
 	private function enable_in_admin(){
 		$wp_autorefresh = ( !empty($this->options) ? $this->options : get_option('wp-autorefresh', array()) );
@@ -679,7 +687,7 @@ document.addEventListener('DOMContentLoaded', function () {
 	}
 	
 	/*
-	 * Enable autoefresh inside member types
+	 * Enable autorefresh inside member types
 	 */
 	private function enable_post_type(){
 		$wp_autorefresh = ( !empty($this->options) ? $this->options : get_option('wp-autorefresh', array()) );
@@ -687,11 +695,11 @@ document.addEventListener('DOMContentLoaded', function () {
 	}
 	
 	/*
-	 * Enable autoefresh inside member types
+	 * Enable autorefresh inside member types
 	 */
 	private function enable_global_refresh(){
-		$wp_autorefresh = ( !empty($this->options) ? $this->options : get_option('wp-autorefresh', array()) );
-		return ((int)($wp_autorefresh['global_refresh']??0)) === (3/3);
+		$wp_autorefresh = ( !empty($this->options) ? $this->options : get_option('wp-autorefresh', []) );
+		return (int)( $wp_autorefresh['global_refresh'] ?? self::ITS_FALSE ) === (int)self::ITS_TRUE;
 	}
 	
 	/*

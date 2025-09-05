@@ -1,0 +1,145 @@
+# Translation of Plugins - Easy Auto Reload &#8211; Auto Refresh - Stable (latest release) in Dutch
+# This file is distributed under the same license as the Plugins - Easy Auto Reload &#8211; Auto Refresh - Stable (latest release) package.
+msgid ""
+msgstr ""
+"Project-Id-Version: Plugins - Easy Auto Reload &#8211; Auto Refresh - Stable (latest release)\n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: 2025-04-09 22:23+0200\n"
+"Last-Translator: Ivijan-Stefan Stipić <infinitumform@gmail.com>\n"
+"Language-Team: \n"
+"Language: nl\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Poedit 3.6\n"
+
+#: easy-auto-reload.php:445
+msgid "Service Worker unregister failed:"
+msgstr "Service worker afmelden mislukt:"
+
+#: easy-auto-reload.php:437
+msgid "Cache clearing failed:"
+msgstr "Cache wissen mislukt:"
+
+#: easy-auto-reload.php:513
+msgid "Disabled"
+msgstr "Uitgeschakeld"
+
+#: easy-auto-reload.php:297
+msgid "Even if this function is disabled, you can still choose for each page individually whether you want it to refresh."
+msgstr "Zelfs als deze functie is uitgeschakeld, kun je nog steeds voor elke pagina afzonderlijk kiezen of je wilt dat deze ververst."
+
+#: easy-auto-reload.php:296
+msgid "INFO:"
+msgstr "INFO:"
+
+#: easy-auto-reload.php:295
+msgid "Enable auto refresh globally on the entire site."
+msgstr "Schakel automatisch verversen globaal in op de hele site."
+
+#: easy-auto-reload.php:529
+msgid "Refresh interval in minutes:"
+msgstr "Verversen interval in minuten:"
+
+#: easy-auto-reload.php:512
+msgid "Custom"
+msgstr "Aangepast"
+
+#: easy-auto-reload.php:511
+msgid "Automatic"
+msgstr "Automatisch"
+
+#: easy-auto-reload.php:507
+msgid "Refresh option:"
+msgstr "Verversen optie:"
+
+#: easy-auto-reload.php:490
+msgid "Auto Reload"
+msgstr "Automatisch herladen"
+
+#: easy-auto-reload.php:371
+msgid "Enable autorefresh settings within pages and posts to have individual control."
+msgstr "Schakel auto ververs instellingen in binnen pagina's en berichten om individuele controle te hebben."
+
+#: easy-auto-reload.php:208
+msgid "Allow custom refresh in page and post types"
+msgstr "Sta aangepaste verversing toe in pagina- en berichttypen"
+
+#: easy-auto-reload.php:320
+msgid "This field is used to define the lifespan of nonces in seconds. By default, nonces have a lifespan of 86,400 seconds, which is equivalent to one day. It's important to exercise caution when considering any extensions to this value, as longer lifespans may introduce security risks by extending the window of opportunity for potential attacks. Please ensure you carefully assess your security requirements before making changes to this setting."
+msgstr "Dit veld wordt gebruikt om de levensduur van nonces in seconden te definiëren. Standaard hebben nonces een levensduur van 86.400 seconden, wat gelijk staat aan één dag. Het is belangrijk om voorzichtig te zijn bij het overwegen van eventuele verlengingen van deze waarde, aangezien langere levensduren beveiligingsrisico's kunnen introduceren door het venster van mogelijkheden voor potentiële aanvallen te verlengen. Zorg ervoor dat je je beveiligingseisen zorgvuldig beoordeelt voordat je wijzigingen aanbrengt in deze instelling."
+
+#: easy-auto-reload.php:319
+msgid "WARNING: Do not change if you are not sure what it is for."
+msgstr "WAARSCHUWING: niet wijzigen als je niet zeker weet waar het voor is."
+
+#: easy-auto-reload.php:199
+msgid "Lifespan of nonces"
+msgstr "Levensduur van nonces"
+
+#: easy-auto-reload.php:342
+msgid "Enable autoefresh inside WP Admin."
+msgstr "Schakel automatisch verversen in binnen WP beheer."
+
+#: easy-auto-reload.php:190
+msgid "WP Admin"
+msgstr "WP beheer"
+
+#: easy-auto-reload.php:182
+msgid "Browser Cache"
+msgstr "Browser cache"
+
+#: easy-auto-reload.php:331
+msgid "Clear the browser cache during refresh."
+msgstr "Wis de browser cache gedurende verversing."
+
+#. Author URI of the plugin
+#: easy-auto-reload.php
+msgid "https://www.linkedin.com/in/ivijanstefanstipic/"
+msgstr "https://www.linkedin.com/in/ivijanstefanstipic/"
+
+#. Author of the plugin
+#: easy-auto-reload.php
+msgid "Ivijan-Stefan Stipic"
+msgstr "Ivijan-Stefan Stipic"
+
+#: easy-auto-reload.php:397
+msgid "Auto-reload WordPress pages after %d minutes if there is no site activity."
+msgstr "Auto-reload WordPress pagina's na %d minuten als er geen site activiteit is."
+
+#: easy-auto-reload.php:308
+msgid "Enter the number in minutes."
+msgstr "Voer het aantal in minuten in."
+
+#: easy-auto-reload.php:288
+msgid "Automatically reloads web pages after any number of minutes if the user or visitor is not active on the site."
+msgstr "Laadt automatisch webpagina's opnieuw na een aantal minuten als de gebruiker of bezoeker niet actief is op de site."
+
+#: easy-auto-reload.php:166 easy-auto-reload.php:221 easy-auto-reload.php:222
+#: easy-auto-reload.php:271
+msgid "Auto-Refresh"
+msgstr "Automatisch verversen"
+
+#: easy-auto-reload.php:174
+msgid "Auto-Refresh Timeout"
+msgstr "Auto-verversen timeout"
+
+#: easy-auto-reload.php:159
+msgid "Auto-Refresh Settings"
+msgstr "Auto-verversen instellingen"
+
+#. Description of the plugin
+#: easy-auto-reload.php
+msgid "Auto refresh WordPress pages if there is no site activity after after any number of minutes."
+msgstr "Ververs WordPress pagina's automatisch als er na een aantal minuten geen site-activiteit is."
+
+#. Plugin URI of the plugin
+#: easy-auto-reload.php
+msgid "https://infinitumform.com"
+msgstr "https://infinitumform.com"
+
+#. Plugin Name of the plugin
+#: easy-auto-reload.php
+msgid "Easy Auto Reload"
+msgstr "Easy Auto Reload"
