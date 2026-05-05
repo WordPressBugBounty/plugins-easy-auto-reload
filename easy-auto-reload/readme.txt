@@ -5,7 +5,7 @@ Tags: refresh, reload, auto-refresh, cache-clear, performance
 Requires at least: 5.4
 Tested up to: 6.9
 Requires PHP: 7.0
-Stable tag: 2.0.3
+Stable tag: 2.0.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -62,6 +62,9 @@ Not at all. This plugin uses client-side JavaScript and works seamlessly with WP
 Yes! You can inside "Auto Reload" metabox.
 
 == Changelog ==
+
+= 2.0.4 =
+* Changed plugin header from Network: true to Network: false to allow per-site activation in multisite environments
 
 = 2.0.3 =
 * Code improvement
