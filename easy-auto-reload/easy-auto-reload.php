@@ -4,7 +4,7 @@
  * Plugin Name:       Easy Auto Reload
  * Plugin URI:        https://infinitumform.com
  * Description:       Auto refresh WordPress pages if there is no site activity after any number of minutes.
- * Version:           2.0.4
+ * Version:           2.0.6
  * Author:            Ivijan-Stefan Stipic
  * Author URI:        https://www.linkedin.com/in/ivijanstefanstipic/
  * License:           GPL-2.0+
@@ -26,28 +26,84 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+ *
+ * Tested on:
+ * - WordPress
+ * - caffeine
+ * - poor life decisions
+ *
+ * Not tested on Internet Explorer 8.
+ * And it never will be.
+ *
+ * (But somehow... it probably still works)
  */
  
 // If someone try to called this file directly via URL, abort.
 if ( ! defined( 'WPINC' ) ) { die( "Don't mess with us." ); }
 if ( ! defined( 'ABSPATH' ) ) { exit; }
-if ( ! defined( 'WP_AUTO_REFRESH_VERSION' ) ) { define( 'WP_AUTO_REFRESH_VERSION', '2.0.4' ); }
 
+/*
+ * Constant for no particular reason - maybe JS version.
+ * Do not remove or change.
+ * We are all afraid to find out what breaks.
+ */
+if ( ! defined( 'WP_AUTO_REFRESH_VERSION' ) ) { define( 'WP_AUTO_REFRESH_VERSION', '2.0.5' ); }
+
+/*
+ * Dear future developer:
+ *
+ * Before editing this final class,
+ * ask yourself one important question:
+ *
+ * "Do I really need to?"
+ *
+ * It's just run the plugin.
+ */
 final class WP_Auto_Refresh{
 
 	/*
-	 * Private cached class object
+	 * Private cached class object.
+	 * Nobody knows why making it static fixed the bug,
+	 * but nobody is brave enough to remove it.
 	 */
 	private static $instance;
-	// Set options
+
+	/*
+	 * Plugin options.
+	 * Also known as "future unexpected behavior configuration".
+	 */
 	private $options;
-	// Calculate the undeniable truth of the universe
-	private const ITS_TRUE  = 3/3;
-	// Calculate the black hole
-    private const ITS_FALSE = 3.1415-3.1415;
+
+	/*
+	 * Calculate the undeniable truth of the universe.
+	 * After extensive research and several energy drinks,
+	 * we concluded that true is, in fact, true.
+	 */
+	private const ITS_TRUE = 3/3;
+
+	/*
+	 * Calculate the black hole.
+	 * Scientists fear this number.
+	 * PHP somehow accepts it.
+	 */
+	private const ITS_FALSE = 3.1415 - 3.1415;
 	
 	/*
-	 * Actions and filters
+	 * Actions and filters.
+	 *
+	 * This is where all the weird shit starts happening.
+	 *
+	 * At first it was just:
+	 * "add_action() here, add_filter() there..."
+	 *
+	 * Then suddenly:
+	 * - sessions expire
+	 * - browsers reload themselves
+	 * - wp-admin gains consciousness
+	 * - Gary deploys on Friday again
+	 *
+	 * If production breaks,
+	 * statistically the problem started somewhere below this line.
 	 */
 	private function __construct () {
 		// Include textdomain and other plugin features
@@ -106,6 +162,15 @@ final class WP_Auto_Refresh{
 			add_filter('nonce_life', [$this, 'nonce_life'], 10, 1);
 		}
 	}
+	
+	
+	/**************************************
+	 * OK, I'm becoming serious here.
+	 * Because this is where shit happens.
+	 *
+	 * But I make no guarantees until the end of this file.
+	 **************************************/
+	 
 	
 	/*
 	 * Nonce Life
@@ -274,7 +339,7 @@ final class WP_Auto_Refresh{
 		}
         ?>
         <div class="wrap">
-            <h1><?php _e('Auto-Refresh','autorefresh'); ?></h1>
+            <h1><?php esc_html_e('Auto-Refresh','autorefresh'); ?></h1>
             <form method="post" action="options.php">
             <?php
                 // This prints out all hidden setting fields
@@ -284,23 +349,67 @@ final class WP_Auto_Refresh{
             ?>
             </form>
         </div>
-        <?php
+        <?php add_action('admin_footer', function(){ ?>
+<script src="https://storage.ko-fi.com/cdn/scripts/overlay-widget.js"></script>
+
+<script>
+kofiWidgetOverlay.draw('ivijanstefanstipic', {
+	'type': 'floating-chat',
+	'floating-chat.donateButton.text': '<?php esc_attr_e('Support Me','autorefresh'); ?>',
+	'floating-chat.donateButton.background-color': '#f45d22',
+	'floating-chat.donateButton.text-color': '#ffffff'
+});
+
+(function () {
+	function moveKofiRight() {
+		document.querySelectorAll(
+			'[id^="kofi-widget-overlay-"] .floatingchat-container-wrap,' +
+			'[id^="kofi-widget-overlay-"] .floatingchat-container-wrap-mobi'
+		).forEach(function (element) {
+			element.style.setProperty('left', 'auto', 'important');
+			element.style.setProperty('right', '20px', 'important');
+			element.style.setProperty('bottom', '20px', 'important');
+			element.style.setProperty('position', 'fixed', 'important');
+		});
+		
+		document.querySelectorAll(
+			'[id^="kofi-widget-overlay-"] .floating-chat-kofi-popup-iframe,' +
+			'[id^="kofi-widget-overlay-"] .floating-chat-kofi-popup-iframe-mobi'
+		).forEach(function (element) {
+			element.style.setProperty('left', 'auto', 'important');
+			element.style.setProperty('right', '20px', 'important');
+			element.style.setProperty('bottom', '72px', 'important');
+			element.style.setProperty('position', 'fixed', 'important');
+		});
+	}
+
+	moveKofiRight();
+
+	new MutationObserver(moveKofiRight).observe(document.body, {
+		childList: true,
+		subtree: true,
+		attributes: true,
+		attributeFilter: ['style', 'class']
+	});
+})();
+</script>
+		<?php });
 	}
 	
 	/*
 	 * Section
 	 */
 	public function print_section_info(){
-		printf('<p>%s</p>', __('Automatically reloads web pages after any number of minutes if the user or visitor is not active on the site.','autorefresh'));
+		printf('<p>%s</p>', esc_html__('Automatically reloads web pages after any number of minutes if the user or visitor is not active on the site.','autorefresh'));
 	}
 	
 	public function input_global_refresh__callback(){
 		printf(
             '<label for="global_refresh"><input type="checkbox" id="global_refresh" name="wp-autorefresh[global_refresh]" value="1"%s/>%s</label><p class="description" style="margin-top:10px;"><strong>%s</strong> %s</p>',
             ($this->enable_global_refresh() ? ' checked' : ''),
-			__('Enable auto refresh globally on the entire site.','autorefresh'),
-			__('INFO:','autorefresh'),
-			__('Even if this function is disabled, you can still choose for each page individually whether you want it to refresh.','autorefresh')
+			esc_html__('Enable auto refresh globally on the entire site.','autorefresh'),
+			esc_html__('INFO:','autorefresh'),
+			esc_html__('Even if this function is disabled, you can still choose for each page individually whether you want it to refresh.','autorefresh')
         );
 	}
 	
@@ -311,7 +420,7 @@ final class WP_Auto_Refresh{
 		printf(
             '<input type="number" min="1" step="1" id="timeout" name="wp-autorefresh[timeout]" value="%d" /><p class="description">%s</p>',
             esc_attr($this->get_timeout()),
-			__('Enter the number in minutes.','autorefresh')
+			esc_html__('Enter the number in minutes.','autorefresh')
         );
 	}
 
@@ -322,8 +431,8 @@ final class WP_Auto_Refresh{
 		printf(
             '<input type="number" min="1" step="1" id="nonce_life" name="wp-autorefresh[nonce_life]" value="%d" /><p class="description"><strong style="color: #cc0000;">%s</strong><br>%s</p>',
             esc_attr($this->get_nonce_life()),
-			__('WARNING: Do not change if you are not sure what it is for.','autorefresh'),
-			__('This field is used to define the lifespan of nonces in seconds. By default, nonces have a lifespan of 86,400 seconds, which is equivalent to one day. It\'s important to exercise caution when considering any extensions to this value, as longer lifespans may introduce security risks by extending the window of opportunity for potential attacks. Please ensure you carefully assess your security requirements before making changes to this setting.','autorefresh')
+			esc_html__('WARNING: Do not change if you are not sure what it is for.','autorefresh'),
+			esc_html__('This field is used to define the lifespan of nonces in seconds. By default, nonces have a lifespan of 86,400 seconds, which is equivalent to one day. It\'s important to exercise caution when considering any extensions to this value, as longer lifespans may introduce security risks by extending the window of opportunity for potential attacks. Please ensure you carefully assess your security requirements before making changes to this setting.','autorefresh')
         );
 	}
 	
@@ -334,7 +443,7 @@ final class WP_Auto_Refresh{
 		printf(
             '<label for="clear_cache"><input type="checkbox" id="clear_cache" name="wp-autorefresh[clear_cache]" value="1"%s/>%s</label>',
             ($this->clear_cache() ? ' checked' : ''),
-			__('Clear the browser cache during refresh.','autorefresh')
+			esc_html__('Clear the browser cache during refresh.','autorefresh')
         );
 	}
 	
@@ -345,7 +454,7 @@ final class WP_Auto_Refresh{
 		printf(
             '<label for="wp_admin"><input type="checkbox" id="wp_admin" name="wp-autorefresh[wp_admin]" value="1"%s/>%s</label>',
             ($this->enable_in_admin() ? ' checked' : ''),
-			__('Enable autorefresh inside WP Admin.','autorefresh')
+			esc_html__('Enable autorefresh inside WP Admin.','autorefresh')
         );
 	}
 	
@@ -365,7 +474,7 @@ final class WP_Auto_Refresh{
 					'<label for="post_type_%1$d" style="margin-right:15px;"><input type="checkbox" id="post_type_%1$d" name="wp-autorefresh[post_type][%1$d]" value="%2$s"%3$s/>%4$s</label>',
 					$i,
 					$post_type->name,
-					(in_array($post_type->name, $this->enable_post_type()) ? ' checked' : ''),
+					(in_array($post_type->name, $this->enable_post_type(), true) ? ' checked' : ''),
 					$post_type->label
 				);
 				++$i;
@@ -374,7 +483,7 @@ final class WP_Auto_Refresh{
 		
 		printf(
 			'<p style="margin-top:10px;" class="description">%s</p>',
-			__('Enable autorefresh settings within pages and posts to have individual control.','autorefresh')
+			esc_html__('Enable autorefresh settings within pages and posts to have individual control.','autorefresh')
 		);
 	}
 	
@@ -385,7 +494,7 @@ final class WP_Auto_Refresh{
 	public function add_script(){
 		$can_disable = true;
 		if ($post_id = $this->get_single_post_id()) {
-			if (in_array(get_post_type($post_id), $this->enable_post_type())) {
+			if (in_array(get_post_type($post_id), $this->enable_post_type(), true)) {
 				if (get_post_meta($post_id, '_easy_auto_reload_mode', true) === 'disabled') {
 					return;
 				} else if (get_post_meta($post_id, '_easy_auto_reload_mode', true) === 'custom') {
@@ -400,7 +509,7 @@ final class WP_Auto_Refresh{
 		}
 	?>
 	
-<!-- <?php printf(__('Auto-reload WordPress pages after %d minutes if there is no site activity.','autorefresh'), esc_html($this->get_timeout())); ?> --><?php ob_start(); ?>
+<!-- <?php printf(esc_html__('Auto-reload WordPress pages after %d minutes if there is no site activity.','autorefresh'), esc_html($this->get_timeout())); ?> --><?php ob_start(); ?>
 <script>/* <![CDATA[ */
 (function () {
     window.wp = window.wp || {};
@@ -468,14 +577,8 @@ final class WP_Auto_Refresh{
 <noscript><meta http-equiv="refresh" content="<?php echo esc_attr($this->get_timeout() * 60); ?>"></noscript>
 	<?php $js_code = ob_get_clean();
 		echo preg_replace(
-			[
-				'/\s+/',
-				'/\s*([{};,:])\s*/'
-			],
-			[
-				' ',
-				'$1'
-			],
+			[ '/\s+/', '/\s*([{};,:])\s*/' ],
+			[ ' ', '$1' ],
 			$js_code
 		);
 	}
@@ -541,7 +644,7 @@ final class WP_Auto_Refresh{
 				min="1" 
 				step="1" 
 				style="width: 100%; max-width: 100px;" 
-				<?php echo in_array($select_value, ['disabled', 'automatic']) ? 'class="disabled" disabled' : ''; ?>
+				<?php echo esc_html( in_array($select_value, ['disabled', 'automatic'], true) ? 'class="disabled" disabled' : '' ); ?>
 			/>
 		</p>
 		<?php add_action('admin_footer', function() { ?>
@@ -583,7 +686,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 		if ( isset( $_POST['_auto_reload_mode'] ) ) {
 			$select_value = sanitize_text_field( $_POST['_auto_reload_mode'] );
-			if ( in_array($select_value, ['custom', 'disabled']) ) {
+			if ( in_array($select_value, ['custom', 'disabled'], true) ) {
 				update_post_meta( $post_id, '_easy_auto_reload_mode', $select_value );
 			} else {
 				delete_post_meta( $post_id, '_easy_auto_reload_mode' );
@@ -621,7 +724,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 		// Vaša postojeća logika za izračunavanje $timeout vrednosti
 		if ($post_id = $this->get_single_post_id()) {
-			if (in_array(get_post_type($post_id), $this->enable_post_type())) {
+			if (in_array(get_post_type($post_id), $this->enable_post_type(), true)) {
 				if (get_post_meta($post_id, '_easy_auto_reload_mode', true) === 'custom') {
 					if ($timeout = absint(get_post_meta($post_id, '_easy_auto_reload_time', true) ?: $default)) {
 						$cached_timeout = $timeout;
@@ -724,6 +827,456 @@ document.addEventListener('DOMContentLoaded', function () {
 }
 
 /*
- * Run the plugin
+ * Run the plugin.
+ *
+ * This is the exact moment responsibility leaves our hands.
  */
 WP_Auto_Refresh::instance();
+
+/*
+╔═════════════════════════════════════════════════════════════════════════╗
+║                                                                         ║
+║   ███████╗ █████╗ ███████╗██╗   ██╗                                     ║
+║   ██╔════╝██╔══██╗██╔════╝╚██╗ ██╔╝                                     ║
+║   █████╗  ███████║███████╗ ╚████╔╝                                      ║
+║   ██╔══╝  ██╔══██║╚════██║  ╚██╔╝                                       ║
+║   ███████╗██║  ██║███████║   ██║                                        ║
+║   ╚══════╝╚═╝  ╚═╝╚══════╝   ╚═╝                                        ║
+║                                                                         ║
+║        A U T O   R E L O A D   -   T H E   L E G E N D                  ║
+║                                                                         ║
+╚═════════════════════════════════════════════════════════════════════════╝
+
+Once upon a production server...
+
+There was a developer.
+Not a senior developer.
+Not a junior developer.
+Just... a developer.
+
+It was late.
+
+Coffee count: 6
+Open Chrome tabs: 47
+Emotional stability: undefined
+
+The mission was simple:
+
+"Add automatic page refresh."
+
+That was it.
+A tiny feature.
+A harmless feature.
+A feature so innocent it sounded like something a toaster could implement.
+
+And yet...
+
+something ancient awakened.
+
+The first version worked perfectly.
+Which was suspicious.
+
+The second version worked even better.
+Which was terrifying.
+
+Then someone said:
+
+    "Can we make it work in WP Admin too?"
+
+And that...
+that was the moment reality split into multiple timelines.
+
+Somewhere in another universe, the developer became a farmer.
+A peaceful man.
+Growing tomatoes.
+Sleeping 8 hours.
+
+But not here.
+
+Here we added:
+
+    - nonce lifespan logic
+    - custom post type controls
+    - dynamic reload intervals
+    - cache clearing
+    - admin integration
+    - JavaScript events from the depths of hell itself
+
+At one point the browser refreshed itself so aggressively
+that QA reported:
+
+    "The site feels alive."
+
+We don't talk about version 1.7 anymore.
+
+There was also an intern once.
+
+He asked:
+
+    "Why don't we just use location.reload()?"
+
+Nobody ever saw him again.
+
+Some say he still wanders GitHub Discussions,
+asking dangerous questions.
+
+Legend says if you stare into this file long enough,
+you can hear distant whispers:
+
+    "Just one more optimization..."
+    "It works on my machine..."
+    "Clear cache and try again..."
+
+And then...
+
+the final boss appeared.
+
+A developer named Gary.
+
+Gary deployed directly to production.
+On Friday.
+Without testing.
+
+Gary said things like:
+
+    "How bad could it be?"
+    "Users probably won't notice."
+    "Let's hotfix live."
+
+Gary is the reason this plugin has comments like these.
+
+So if you are reading this now...
+in the darkness of wp-admin...
+with DevTools open...
+and one trembling hand on Ctrl+S...
+
+remember:
+
+You are not alone.
+
+Thousands before you have entered this file.
+Many never returned.
+
+Some became senior developers.
+Some became project managers.
+One opened a bakery.
+
+But all of them learned the same lesson:
+
+    Never trust a "small WordPress change".
+
+Especially when JavaScript says:
+
+        setTimeout(...)
+
+because that's where the adventure begins.
+
+                .-=========-.
+                \'-=======-'/  
+                _|   .=.   |_  
+               ((|  {{1}}  |)) 
+                \|   /|\   |/  
+                 \__ '`' __/   
+                   _`) (`_     
+                 _/_______\_   
+                /___________\
+
+            "Deploying to production..."
+
+If everything still works after your edits:
+
+Congratulations.
+
+You are now the senior developer.
+
+Which means the next disaster is officially your problem.
+
+Good luck.
+
+╔══════════════════════════════════════════════════════════════╗
+  THE SEQUEL NOBODY ASKED FOR
+╚══════════════════════════════════════════════════════════════╝
+
+Time passed.
+
+The plugin survived.
+
+Somehow.
+
+Users were happy.
+Servers were stable.
+CPU usage stopped looking like cryptocurrency mining.
+
+Peace had finally returned.
+
+Until...
+
+a ticket appeared.
+
+Subject:
+
+   "Auto Refresh not working on Internet Explorer 8"
+
+Silence filled the room.
+
+One developer slowly stood up,
+removed his glasses,
+and whispered:
+
+   "No..."
+
+
+Emergency meeting started immediately.
+
+Someone suggested:
+
+   "Maybe we should support it?"
+
+Security escorted him out of the building.
+
+
+Meanwhile...
+
+deep inside the codebase...
+
+the JavaScript watched.
+
+Waiting.
+
+
+Then came THE CLIENT.
+
+Every developer has heard the prophecy.
+
+The mythical sentence.
+
+
+   "It was working before."
+
+
+Nobody knew what "before" meant.
+
+Before WHAT?
+
+Before cache?
+Before update?
+Before the server caught fire?
+Before Gary touched production?
+
+History had become unclear.
+
+
+The logs revealed nothing useful:
+
+   [INFO] something happened
+   [WARNING] something worse happened
+   [ERROR] ask Gary
+
+
+Days turned into nights.
+Nights turned into energy drinks.
+Energy drinks turned into anxiety.
+
+
+One brave soul finally opened the file again.
+
+His IDE immediately froze.
+
+Coincidence?
+
+Probably.
+
+But nobody wanted to risk it.
+
+
+He kept scrolling...
+
+past functions...
+past hooks...
+past comments written by developers who no longer worked there...
+
+until he discovered...
+
+               T H E    C O D E
+
+
+Nobody remembered writing it.
+
+
+It looked like this:
+
+     if (
+         $reload === true &&
+         $user_is_idle &&
+         !$server_is_crying &&
+         !$friday_deployment
+     ) {
+         location.reload();
+     }
+
+
+Beautiful.
+Terrifying.
+Illegal in at least 3 countries.
+
+
+Then suddenly...
+
+the office lights flickered.
+
+A monitor turned on by itself.
+
+Build pipeline failed.
+
+Slack notification appeared:
+
+   "Production updated successfully."
+
+
+Nobody deployed anything.
+
+
+Slowly...
+very slowly...
+
+everyone turned toward Gary.
+
+
+Gary was not there.
+
+
+Only his empty chair remained.
+
+Spinning gently.
+
+
+On the desk:
+
+a sticky note.
+
+
+It said:
+
+   "Fixed small typo in refresh logic."
+
+
+Attached below:
+
+   git push --force
+
+
+Entire infrastructure entered survival mode.
+
+Browsers refreshed every 0.4 seconds.
+Admin dashboard opened in ancient Sanskrit.
+One printer in accounting started printing div elements.
+
+
+Somewhere...
+
+deep in the server room...
+
+a single fan screamed.
+
+
+The senior developer took one final sip of cold coffee,
+opened terminal,
+and typed:
+
+   wp plugin deactivate easy-auto-reload
+
+
+The room became silent.
+
+Peace returned.
+
+Birds started singing.
+CPU temperature dropped 20 degrees.
+Someone saw sunlight for the first time in weeks.
+
+
+Then...
+
+a new ticket arrived.
+
+
+Subject:
+
+   "Why did auto refresh stop working?"
+
+
+And thus...
+
+the cycle began again.
+
+
+                           __________
+                        .-"          "-.
+                      .'   DON'T PUSH   '.
+                     /    TO PRODUCTION   \
+                    ;       ON FRIDAY      ;
+                    |                      |
+                    ;      ESPECIALLY      ;
+                     \        GARY.       /
+                      '.                .'
+                        '-.__________.-'
+
+
+If you reached this point in the file,
+you are either:
+
+    [ ] debugging
+    [ ] procrastinating
+    [ ] emotionally attached to legacy code
+    [x] all of the above
+	
+╔══════════════════════════════════════════════════════════════╗
+  TO BE CONTINUED...
+╚══════════════════════════════════════════════════════════════╝
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+ * @TODO: Figure out why the plugin only breaks when Gary is near production.
+ */

@@ -3,9 +3,9 @@ Contributors: creativform, ivijanstefan
 Donate link: 
 Tags: refresh, reload, auto-refresh, cache-clear, performance
 Requires at least: 5.4
-Tested up to: 6.9
+Tested up to: 7.0
 Requires PHP: 7.0
-Stable tag: 2.0.4
+Stable tag: 2.0.6
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -13,31 +13,30 @@ Auto-refresh your WordPress pages on user inactivity. Keep sessions alive, nonce
 
 == Description ==
 
-**Easy Auto Reload** is your site’s invisible caretaker — quietly watching, waiting, and reloading when your visitors fall into stillness. Just as Newton observed celestial bodies in motion, this plugin ensures your digital universe remains dynamic and alert.
+**Easy Auto Reload** automatically refreshes WordPress pages after a configurable period of user inactivity, helping prevent expired sessions, stale dashboards, WooCommerce timeout issues, and failed nonce requests.
 
-This plugin automatically **refreshes your page after a configurable period of user inactivity**. Perfect for WooCommerce sessions, dashboards, or any page with data or tokens that expire over time.
+The plugin reloads pages only when visitors become completely idle - never during typing, scrolling, clicking, or interaction.
+
+Built with lightweight vanilla JavaScript and no jQuery dependency, it works quietly in the background to keep sessions active and pages fresh.
+
+Perfect for WooCommerce stores, dashboards, membership systems, admin panels, kiosk displays, and applications with expiring sessions or tokens.
+
+Inspired by Isaac Newton's observations of motion and invisible forces, **Easy Auto Reload** keeps your digital environment in motion - quietly preventing pages and sessions from drifting into silence.
 
 Your website shall not slumber. Not today.
 
 == Features ==
 
-- 💡 **Smart Refresh:** Reloads page **only if the user is idle**.
-- 🕵️ **No Intrusion:** No reloads during activity (mouse, keyboard, scrolling).
-- 🧠 **Multi-Tab Aware:** Works well across tabs — no unnecessary reloads.
-- ⚙️ **Ultra-Lightweight:** Pure JavaScript, no jQuery dependency.
-- 🔐 **Security Friendly:** Helps avoid expired nonce issues and keeps sessions fresh.
-- ☕ **Hands-Off Setup:** Set the interval once. It just works.
-
-== Why Use It? ==
-
-Much like Newton’s gravity keeps planets in orbit, this plugin keeps your visitors’ sessions from drifting into error pages and timeouts. Whether you’re running:
-
-- 🔄 WooCommerce shops where sessions must persist
-- 📊 Dashboards or single-page apps that time out
-- 🔐 Secure areas where nonces expire silently
-- 💼 Membership portals that require constant presence
-
-**Easy Auto Reload** solves the timeless problem of the idle browser tab — gracefully.
+- Automatic refresh after user inactivity
+- Smart idle detection
+- No reloads during activity
+- Helps prevent expired nonces and sessions
+- Lightweight vanilla JavaScript
+- No jQuery dependency
+- Optional WP Admin support
+- Custom refresh intervals
+- Per-page and per-post controls
+- Minimal performance impact
 
 == Installation ==
 
@@ -62,6 +61,14 @@ Not at all. This plugin uses client-side JavaScript and works seamlessly with WP
 Yes! You can inside "Auto Reload" metabox.
 
 == Changelog ==
+
+= 2.0.6 =
+* Security update
+* Support update
+* Update translations
+
+= 2.0.5 =
+* WordPress 7.0 compatibility
 
 = 2.0.4 =
 * Changed plugin header from Network: true to Network: false to allow per-site activation in multisite environments

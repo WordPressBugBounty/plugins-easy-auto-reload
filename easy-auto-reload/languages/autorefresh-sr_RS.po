@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Easy Auto Reload\n"
-"POT-Creation-Date: 2025-02-28 21:36+0100\n"
-"PO-Revision-Date: 2025-02-28 21:44+0100\n"
+"POT-Creation-Date: 2026-05-26 15:04+0200\n"
+"PO-Revision-Date: 2026-05-26 15:04+0200\n"
 "Last-Translator: Ivijan-Stefan Stipić <infinitumform@gmail.com>\n"
 "Language-Team: \n"
 "Language: sr_RS\n"
@@ -11,47 +11,50 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<12 || n%100>14) ? 1 : 2);\n"
-"X-Generator: Poedit 3.5\n"
+"X-Generator: Poedit 3.9\n"
 "X-Poedit-Basepath: ..\n"
 "X-Poedit-Flags-xgettext: --add-comments=translators:\n"
 "X-Poedit-WPHeader: easy-auto-reload.php\n"
 "X-Poedit-SourceCharset: UTF-8\n"
-"X-Poedit-KeywordsList: __;_e;_n:1,2;_x:1,2c;_ex:1,2c;_nx:4c,1,2;esc_attr__;"
-"esc_attr_e;esc_attr_x:1,2c;esc_html__;esc_html_e;esc_html_x:1,2c;"
-"_n_noop:1,2;_nx_noop:3c,1,2;__ngettext_noop:1,2\n"
+"X-Poedit-KeywordsList: "
+"__;_e;_n:1,2;_x:1,2c;_ex:1,2c;_nx:4c,1,2;esc_attr__;esc_attr_e;esc_attr_x:1,2c;esc_html__;esc_html_e;esc_html_x:1,2c;_n_noop:1,2;_nx_noop:3c,1,2;__ngettext_noop:1,2\n"
 "X-Poedit-SearchPath-0: .\n"
 "X-Poedit-SearchPathExcluded-0: *.min.js\n"
 
-#: easy-auto-reload.php:159
+#: easy-auto-reload.php:230
 msgid "Auto-Refresh Settings"
 msgstr "Подешавања аутоматског освежавања"
 
-#: easy-auto-reload.php:166 easy-auto-reload.php:221 easy-auto-reload.php:222
-#: easy-auto-reload.php:271
+#: easy-auto-reload.php:237 easy-auto-reload.php:292 easy-auto-reload.php:293
+#: easy-auto-reload.php:342
 msgid "Auto-Refresh"
 msgstr "Аутоматско освежавање"
 
-#: easy-auto-reload.php:174
+#: easy-auto-reload.php:245
 msgid "Auto-Refresh Timeout"
 msgstr "Временско ограничење аутоматског освежавања"
 
-#: easy-auto-reload.php:182
+#: easy-auto-reload.php:253
 msgid "Browser Cache"
 msgstr "Кеш претраживача"
 
-#: easy-auto-reload.php:190
+#: easy-auto-reload.php:261
 msgid "WP Admin"
 msgstr "Вордпресс администрација"
 
-#: easy-auto-reload.php:199
+#: easy-auto-reload.php:270
 msgid "Lifespan of nonces"
 msgstr "Време трајања за \"nonces\""
 
-#: easy-auto-reload.php:208
+#: easy-auto-reload.php:279
 msgid "Allow custom refresh in page and post types"
 msgstr "Дозволите прилагођено освежавање у страницама и постовима"
 
-#: easy-auto-reload.php:288
+#: easy-auto-reload.php:358
+msgid "Support Me"
+msgstr "Подржите даљи рад"
+
+#: easy-auto-reload.php:403
 msgid ""
 "Automatically reloads web pages after any number of minutes if the user or "
 "visitor is not active on the site."
@@ -59,15 +62,15 @@ msgstr ""
 "Аутоматски поново учитавање веб страница након било којег броја минута ако "
 "корисник или посетилац није активан на сајту."
 
-#: easy-auto-reload.php:295
+#: easy-auto-reload.php:410
 msgid "Enable auto refresh globally on the entire site."
 msgstr "Омогућите глобално аутоматско освежавање на целом сајту."
 
-#: easy-auto-reload.php:296
+#: easy-auto-reload.php:411
 msgid "INFO:"
 msgstr "ИНФОРМАЦИЈА:"
 
-#: easy-auto-reload.php:297
+#: easy-auto-reload.php:412
 msgid ""
 "Even if this function is disabled, you can still choose for each page "
 "individually whether you want it to refresh."
@@ -75,15 +78,15 @@ msgstr ""
 "Чак и ако је ова функција онемогућена, и даље можете да изаберете за сваку "
 "страницу појединачно да ли желите да се освежи."
 
-#: easy-auto-reload.php:308
+#: easy-auto-reload.php:423
 msgid "Enter the number in minutes."
 msgstr "Унесите број у минутима."
 
-#: easy-auto-reload.php:319
+#: easy-auto-reload.php:434
 msgid "WARNING: Do not change if you are not sure what it is for."
 msgstr "УПОЗОРЕЊЕ: Не мењајте ако нисте сигурни за шта служи."
 
-#: easy-auto-reload.php:320
+#: easy-auto-reload.php:435
 msgid ""
 "This field is used to define the lifespan of nonces in seconds. By default, "
 "nonces have a lifespan of 86,400 seconds, which is equivalent to one day. "
@@ -100,15 +103,15 @@ msgstr ""
 "процените своје безбедносне захтеве пре него што направите измене на овим "
 "подешавањима."
 
-#: easy-auto-reload.php:331
+#: easy-auto-reload.php:446
 msgid "Clear the browser cache during refresh."
 msgstr "Обришите кеш претраживач током освежавања."
 
-#: easy-auto-reload.php:342
-msgid "Enable autoefresh inside WP Admin."
-msgstr "Омогућите аутоматско освежавање унутар ВП Админ-а."
+#: easy-auto-reload.php:457
+msgid "Enable autorefresh inside WP Admin."
+msgstr "Омогући аутоматско освежавање унутар WP администрације."
 
-#: easy-auto-reload.php:371
+#: easy-auto-reload.php:486
 msgid ""
 "Enable autorefresh settings within pages and posts to have individual "
 "control."
@@ -116,7 +119,7 @@ msgstr ""
 "Омогућите подешавања аутоматског освежавања унутар страница и постова да "
 "бисте имали индивидуалну контролу."
 
-#: easy-auto-reload.php:397
+#: easy-auto-reload.php:512
 #, php-format
 msgid ""
 "Auto-reload WordPress pages after %d minutes if there is no site activity."
@@ -124,35 +127,35 @@ msgstr ""
 "Аутоматски поново учитајте Вордпресс странице након %d минута ако нема "
 "активности на сајту."
 
-#: easy-auto-reload.php:437
+#: easy-auto-reload.php:552
 msgid "Cache clearing failed:"
 msgstr "Грешка при брисању кеша:"
 
-#: easy-auto-reload.php:445
+#: easy-auto-reload.php:560
 msgid "Service Worker unregister failed:"
 msgstr "Грешка при уклањању сервисног радника:"
 
-#: easy-auto-reload.php:490
+#: easy-auto-reload.php:599
 msgid "Auto Reload"
 msgstr "Аутоматско учитавање"
 
-#: easy-auto-reload.php:507
+#: easy-auto-reload.php:616
 msgid "Refresh option:"
 msgstr "Opcija osvežavanja:"
 
-#: easy-auto-reload.php:511
+#: easy-auto-reload.php:620
 msgid "Automatic"
 msgstr "Аутоматски"
 
-#: easy-auto-reload.php:512
+#: easy-auto-reload.php:621
 msgid "Custom"
 msgstr "Прилагођено"
 
-#: easy-auto-reload.php:513
+#: easy-auto-reload.php:622
 msgid "Disabled"
 msgstr "Онемогућено"
 
-#: easy-auto-reload.php:529
+#: easy-auto-reload.php:638
 msgid "Refresh interval in minutes:"
 msgstr "Интервал освежавања у минутима:"
 
@@ -166,11 +169,11 @@ msgstr ""
 
 #. Description of the plugin/theme
 msgid ""
-"Auto refresh WordPress pages if there is no site activity after after any "
-"number of minutes."
+"Auto refresh WordPress pages if there is no site activity after any number "
+"of minutes."
 msgstr ""
-"Аутоматско освежавање Вордпресс страница ако нема активности на сајту након "
-"било којег броја минута."
+"Аутоматски освежи WordPress странице ако нема активности на сајту након "
+"одређеног броја минута."
 
 #. Author of the plugin/theme
 msgid "Ivijan-Stefan Stipic"
