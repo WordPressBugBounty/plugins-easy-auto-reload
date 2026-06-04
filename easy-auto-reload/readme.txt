@@ -5,7 +5,7 @@ Tags: refresh, reload, auto-refresh, cache-clear, performance
 Requires at least: 5.4
 Tested up to: 7.0
 Requires PHP: 7.0
-Stable tag: 2.0.6
+Stable tag: 2.0.7
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -61,6 +61,13 @@ Not at all. This plugin uses client-side JavaScript and works seamlessly with WP
 Yes! You can inside "Auto Reload" metabox.
 
 == Changelog ==
+
+= 2.0.7 =
+* Disable auto reload in Elementor editor and preview
+* Disable auto reload in WPBakery / Visual Composer editor modes
+* Disable auto reload in Divi Visual Builder
+* Add support for legacy builder preview states
+* Prevent interruptions while editing pages
 
 = 2.0.6 =
 * Security update

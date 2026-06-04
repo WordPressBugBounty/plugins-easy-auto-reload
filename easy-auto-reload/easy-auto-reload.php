@@ -4,7 +4,7 @@
  * Plugin Name:       Easy Auto Reload
  * Plugin URI:        https://infinitumform.com
  * Description:       Auto refresh WordPress pages if there is no site activity after any number of minutes.
- * Version:           2.0.6
+ * Version:           2.0.7
  * Author:            Ivijan-Stefan Stipic
  * Author URI:        https://www.linkedin.com/in/ivijanstefanstipic/
  * License:           GPL-2.0+
@@ -39,15 +39,22 @@
  */
  
 // If someone try to called this file directly via URL, abort.
-if ( ! defined( 'WPINC' ) ) { die( "Don't mess with us." ); }
-if ( ! defined( 'ABSPATH' ) ) { exit; }
+if ( ! defined( 'WPINC' ) ) {
+	die( "Don't mess with us." );
+}
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
 
 /*
  * Constant for no particular reason - maybe JS version.
  * Do not remove or change.
  * We are all afraid to find out what breaks.
  */
-if ( ! defined( 'WP_AUTO_REFRESH_VERSION' ) ) { define( 'WP_AUTO_REFRESH_VERSION', '2.0.5' ); }
+if ( ! defined( 'WP_AUTO_REFRESH_VERSION' ) ) {
+	define( 'WP_AUTO_REFRESH_VERSION', '2.0.7' );
+}
 
 /*
  * Dear future developer:
@@ -59,6 +66,7 @@ if ( ! defined( 'WP_AUTO_REFRESH_VERSION' ) ) { define( 'WP_AUTO_REFRESH_VERSION
  *
  * It's just run the plugin.
  */
+if ( !class_exists('WP_Auto_Refresh', false) ) :
 final class WP_Auto_Refresh{
 
 	/*
@@ -350,47 +358,100 @@ final class WP_Auto_Refresh{
             </form>
         </div>
         <?php add_action('admin_footer', function(){ ?>
-<script src="https://storage.ko-fi.com/cdn/scripts/overlay-widget.js"></script>
-
-<script>
-kofiWidgetOverlay.draw('ivijanstefanstipic', {
-	'type': 'floating-chat',
-	'floating-chat.donateButton.text': '<?php esc_attr_e('Support Me','autorefresh'); ?>',
-	'floating-chat.donateButton.background-color': '#f45d22',
-	'floating-chat.donateButton.text-color': '#ffffff'
-});
-
+<script src="https://storage.ko-fi.com/cdn/scripts/overlay-widget.js" id="ko-fi-support"></script>
+<script id="ko-fi-support-settings">
 (function () {
+	var kofiButtonText = '<?php echo esc_js(__('Support Me', 'autorefresh')); ?>';
+	var observerScheduled = false;
+
+	kofiWidgetOverlay.draw('ivijanstefanstipic', {
+		'type': 'floating-chat',
+		'floating-chat.donateButton.text': kofiButtonText,
+		'floating-chat.donateButton.background-color': '#f45d22',
+		'floating-chat.donateButton.text-color': '#ffffff'
+	});
+
+	function getButtonWidth(text) {
+		var measurer = document.createElement('span');
+
+		measurer.style.position = 'fixed';
+		measurer.style.left = '-9999px';
+		measurer.style.top = '-9999px';
+		measurer.style.visibility = 'hidden';
+		measurer.style.whiteSpace = 'nowrap';
+		measurer.style.fontSize = '16px';
+		measurer.style.fontWeight = '700';
+		measurer.style.fontFamily = 'Arial, sans-serif';
+		measurer.textContent = text;
+
+		document.body.appendChild(measurer);
+
+		var width = Math.ceil(measurer.getBoundingClientRect().width) + 120;
+
+		document.body.removeChild(measurer);
+
+		return Math.max(180, width);
+	}
+
 	function moveKofiRight() {
+		var margin = 20;
+		var buttonWidth = getButtonWidth(kofiButtonText);
+		var maxWidth = window.innerWidth - (margin * 2);
+		var scale = buttonWidth > maxWidth ? maxWidth / buttonWidth : 1;
+
 		document.querySelectorAll(
 			'[id^="kofi-widget-overlay-"] .floatingchat-container-wrap,' +
 			'[id^="kofi-widget-overlay-"] .floatingchat-container-wrap-mobi'
 		).forEach(function (element) {
 			element.style.setProperty('left', 'auto', 'important');
-			element.style.setProperty('right', '20px', 'important');
-			element.style.setProperty('bottom', '20px', 'important');
+			element.style.setProperty('right', margin + 'px', 'important');
+			element.style.setProperty('bottom', margin + 'px', 'important');
 			element.style.setProperty('position', 'fixed', 'important');
+			element.style.setProperty('width', buttonWidth + 'px', 'important');
+			element.style.setProperty('max-width', buttonWidth + 'px', 'important');
+			element.style.setProperty('transform-origin', 'right bottom', 'important');
+			element.style.setProperty('transform', scale < 1 ? 'scale(' + scale + ')' : 'none', 'important');
 		});
-		
+
+		document.querySelectorAll('[id^="kofi-widget-overlay-"] iframe').forEach(function (element) {
+			element.style.setProperty('width', buttonWidth + 'px', 'important');
+			element.style.setProperty('max-width', buttonWidth + 'px', 'important');
+		});
+
 		document.querySelectorAll(
 			'[id^="kofi-widget-overlay-"] .floating-chat-kofi-popup-iframe,' +
 			'[id^="kofi-widget-overlay-"] .floating-chat-kofi-popup-iframe-mobi'
 		).forEach(function (element) {
 			element.style.setProperty('left', 'auto', 'important');
-			element.style.setProperty('right', '20px', 'important');
+			element.style.setProperty('right', margin + 'px', 'important');
 			element.style.setProperty('bottom', '72px', 'important');
 			element.style.setProperty('position', 'fixed', 'important');
 		});
 	}
 
-	moveKofiRight();
+	function scheduleMoveKofiRight() {
+		if (observerScheduled) {
+			return;
+		}
 
-	new MutationObserver(moveKofiRight).observe(document.body, {
+		observerScheduled = true;
+
+		window.requestAnimationFrame(function () {
+			observerScheduled = false;
+			moveKofiRight();
+		});
+	}
+
+	setTimeout(scheduleMoveKofiRight, 300);
+	setTimeout(scheduleMoveKofiRight, 800);
+	setTimeout(scheduleMoveKofiRight, 1500);
+
+	new MutationObserver(scheduleMoveKofiRight).observe(document.body, {
 		childList: true,
-		subtree: true,
-		attributes: true,
-		attributeFilter: ['style', 'class']
+		subtree: true
 	});
+
+	window.addEventListener('resize', scheduleMoveKofiRight);
 })();
 </script>
 		<?php });
@@ -492,6 +553,10 @@ kofiWidgetOverlay.draw('ivijanstefanstipic', {
 	 * This must be placed inside document <head> area to working properly.
 	 */
 	public function add_script(){
+		if ( $this->is_builder_editor_or_preview() ) {
+			return;
+		}
+
 		$can_disable = true;
 		if ($post_id = $this->get_single_post_id()) {
 			if (in_array(get_post_type($post_id), $this->enable_post_type(), true)) {
@@ -781,6 +846,126 @@ document.addEventListener('DOMContentLoaded', function () {
 		return ($wp_autorefresh['clear_cache'] ?? false ? true : false);
 	}
 	
+	/**
+	 * Detects known page builder editor and preview contexts where auto reload must not run.
+	 *
+	 * The check is intentionally centralized because the script can be printed from both
+	 * wp_head and admin_head. Returning true here prevents the JavaScript timer and the
+	 * noscript meta refresh from being printed at all.
+	 *
+	 * @return bool True when the current request belongs to a builder editor or preview.
+	 */
+	private function is_builder_editor_or_preview() {
+		$detected = false;
+
+		/*
+		 * Elementor editor and preview.
+		 * Covers the iframe preview request, editor state, and older URL based detection.
+		 */
+		if ( isset( $_GET['elementor-preview'] ) || isset( $_GET['elementor_library'] ) ) {
+			$detected = true;
+		}
+
+		if ( ! $detected && class_exists( '\Elementor\Plugin' ) ) {
+			try {
+				$elementor = \Elementor\Plugin::$instance ?? null;
+
+				if ( $elementor ) {
+					if (
+						isset( $elementor->editor )
+						&& is_object( $elementor->editor )
+						&& method_exists( $elementor->editor, 'is_edit_mode' )
+						&& $elementor->editor->is_edit_mode()
+					) {
+						$detected = true;
+					}
+
+					if (
+						! $detected
+						&& isset( $elementor->preview )
+						&& is_object( $elementor->preview )
+						&& method_exists( $elementor->preview, 'is_preview_mode' )
+						&& $elementor->preview->is_preview_mode()
+					) {
+						$detected = true;
+					}
+				}
+			} catch ( \Throwable $e ) {
+				// Keep the plugin compatible with old PHP/page builder combinations.
+			}
+		}
+
+		/*
+		 * WPBakery Page Builder / older Visual Composer frontend editor and preview.
+		 * Also covers Visual Composer Website Builder URL parameters used by newer versions.
+		 */
+		if ( ! $detected && function_exists( 'vc_is_inline' ) && vc_is_inline() ) {
+			$detected = true;
+		}
+
+		if ( ! $detected && function_exists( 'vc_action' ) ) {
+			$vc_action = vc_action();
+
+			if ( ! empty( $vc_action ) ) {
+				$detected = true;
+			}
+		}
+
+		if ( ! $detected ) {
+			$visual_composer_keys = [
+				'vc_editable',
+				'vc_action',
+				'vc_post_id',
+				'vc_preview',
+				'vcv-action',
+				'vcv-source-id',
+				'vcv-editor-type',
+				'vcv-preview',
+			];
+
+			foreach ( $visual_composer_keys as $key ) {
+				if ( isset( $_GET[ $key ] ) ) {
+					$detected = true;
+					break;
+				}
+			}
+		}
+
+		/*
+		 * Divi Visual Builder and backend/older builder preview requests.
+		 */
+		if ( ! $detected ) {
+			$divi_keys = [
+				'et_fb',
+				'et_bfb',
+				'et_pb_preview',
+				'et_pb_preview_nonce',
+			];
+
+			foreach ( $divi_keys as $key ) {
+				if ( isset( $_GET[ $key ] ) ) {
+					$detected = true;
+					break;
+				}
+			}
+		}
+
+		if ( ! $detected && function_exists( 'et_fb_is_enabled' ) && et_fb_is_enabled() ) {
+			$detected = true;
+		}
+
+		if ( ! $detected && function_exists( 'et_builder_bfb_enabled' ) && et_builder_bfb_enabled() ) {
+			$detected = true;
+		}
+
+		/**
+		 * Allows third-party code to disable or extend builder/editor detection.
+		 *
+		 * @param bool $detected True when auto reload should be suppressed.
+		 */
+		return (bool) apply_filters( 'easy_auto_reload_is_builder_editor_or_preview', $detected );
+	}
+
 	/*
 	 * Enable autorefresh inside WP Admin
 	 */
@@ -825,6 +1010,7 @@ document.addEventListener('DOMContentLoaded', function () {
 		return self::$instance;
 	}
 }
+endif;
 
 /*
  * Run the plugin.
@@ -833,7 +1019,7 @@ document.addEventListener('DOMContentLoaded', function () {
  */
 WP_Auto_Refresh::instance();
 
-/*
+/**
 ╔═════════════════════════════════════════════════════════════════════════╗
 ║                                                                         ║
 ║   ███████╗ █████╗ ███████╗██╗   ██╗                                     ║
@@ -1233,6 +1419,7 @@ you are either:
 ╔══════════════════════════════════════════════════════════════╗
   TO BE CONTINUED...
 ╚══════════════════════════════════════════════════════════════╝
+
 */
 
 
@@ -1256,6 +1443,9 @@ you are either:
 
 
 
+/**
+ * Music for you: https://www.youtube.com/@IvijanRecords
+ */
 
 
 
@@ -1274,9 +1464,6 @@ you are either:
 
 
 
-
-
-
-/*
+/**
  * @TODO: Figure out why the plugin only breaks when Gary is near production.
  */
