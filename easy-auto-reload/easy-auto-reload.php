@@ -414,8 +414,8 @@ final class WP_Auto_Refresh{
 		});
 
 		document.querySelectorAll('[id^="kofi-widget-overlay-"] iframe').forEach(function (element) {
-			element.style.setProperty('width', buttonWidth + 'px', 'important');
-			element.style.setProperty('max-width', buttonWidth + 'px', 'important');
+			element.style.setProperty('width', '100%', 'important');
+			element.style.setProperty('max-width', '100%', 'important');
 		});
 
 		document.querySelectorAll(
