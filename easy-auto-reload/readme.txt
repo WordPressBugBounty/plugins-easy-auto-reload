@@ -3,9 +3,9 @@ Contributors: creativform, ivijanstefan
 Donate link: 
 Tags: refresh, reload, auto-refresh, cache-clear, performance
 Requires at least: 5.4
-Tested up to: 7.0
+Tested up to: 7.1
 Requires PHP: 7.0
-Stable tag: 2.0.7
+Stable tag: 2.0.8
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -62,6 +62,9 @@ Yes! You can inside "Auto Reload" metabox.
 
 == Changelog ==
 
+= 2.0.8 =
+* Confirmed compatibility with WordPress 7.1
+
 = 2.0.7 =
 * Disable auto reload in Elementor editor and preview
 * Disable auto reload in WPBakery / Visual Composer editor modes
@@ -103,41 +106,41 @@ Yes! You can inside "Auto Reload" metabox.
 = 1.0.10 =
 * Support for the WordPress version 6.7
 
-=1.0.9=
+= 1.0.9 =
 * Added support for the WordPress version 6.6
 * Added new browsers support
 
-=1.0.8=
+= 1.0.8 =
 * Added support for the WordPress version 6.5
 * Fixed plugin security
 
-=1.0.7=
+= 1.0.7 =
 * Added support for the WordPress version 6.4
 * Added settings for the lifespan of nonces
 
-=1.0.6=
+= 1.0.6 =
 * Added support for the WordPress version 6.3
 
-=1.0.5=
+= 1.0.5 =
 * Added support for the browsers with no JavaScript
 * Improved 
 
-=1.0.4=
+= 1.0.4 =
 * Added support for the WordPress version 6.0
 
-=1.0.3=
+= 1.0.3 =
 * Adding WP admin cache
 
-=1.0.2=
+= 1.0.2 =
 * Fixed plugin initialization
 * Added translations
 * Fixed PHP bugs
 
-=1.0.1=
+= 1.0.1 =
 * Added browser cache cleaning
 * Fixed seconds instead of minutes
 
-=1.0.0=
+= 1.0.0 =
 * First stable version
 
 == Screenshots ==

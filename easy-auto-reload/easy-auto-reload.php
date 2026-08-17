@@ -4,7 +4,7 @@
  * Plugin Name:       Easy Auto Reload
  * Plugin URI:        https://infinitumform.com
  * Description:       Auto refresh WordPress pages if there is no site activity after any number of minutes.
- * Version:           2.0.7
+ * Version:           2.0.8
  * Author:            Ivijan-Stefan Stipic
  * Author URI:        https://www.linkedin.com/in/ivijanstefanstipic/
  * License:           GPL-2.0+
@@ -53,7 +53,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * We are all afraid to find out what breaks.
  */
 if ( ! defined( 'WP_AUTO_REFRESH_VERSION' ) ) {
-	define( 'WP_AUTO_REFRESH_VERSION', '2.0.7' );
+	define( 'WP_AUTO_REFRESH_VERSION', '2.0.8' );
 }
 
 /*
